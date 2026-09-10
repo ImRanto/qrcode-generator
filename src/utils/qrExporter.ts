@@ -2,12 +2,42 @@ import QRCode from 'qrcode';
 import { jsPDF } from 'jspdf';
 import type { QRType } from './qrFormatters';
 
+export const sanitizeFilename = (
+  rawInput: string,
+  format: 'png' | 'svg' | 'pdf'
+): string => {
+  let cleaned = rawInput.trim();
+
+  // Strip any trailing common extensions if entered manually
+  cleaned = cleaned.replace(/\.(png|svg|pdf|jpeg|jpg|webp)$/i, '');
+
+  // Remove filesystem illegal characters: \ / : * ? " < > |
+  cleaned = cleaned.replace(/[\\/:*?"<>|]/g, '');
+
+  // Replace whitespace sequences with a single hyphen
+  cleaned = cleaned.replace(/[\s]+/g, '-');
+
+  // Replace duplicate hyphens/underscores
+  cleaned = cleaned.replace(/-+/g, '-').replace(/_+/g, '_');
+
+  // Trim leading/trailing hyphens/underscores/dots
+  cleaned = cleaned.replace(/^[._-]+|[._-]+$/g, '');
+
+  // Fallback if empty after sanitization
+  if (!cleaned) {
+    cleaned = 'mon-qr-code';
+  }
+
+  return `${cleaned}.${format}`;
+};
+
 export const exportPNG = async (
   qrText: string,
   fgColor: string,
   bgColor: string,
-  filename = 'qr-code.png'
+  rawFilename = 'mon-qr-code'
 ): Promise<void> => {
+  const filename = sanitizeFilename(rawFilename, 'png');
   const canvas = document.createElement('canvas');
   await QRCode.toCanvas(canvas, qrText, {
     width: 1024,
@@ -32,8 +62,9 @@ export const exportSVG = async (
   qrText: string,
   fgColor: string,
   bgColor: string,
-  filename = 'qr-code.svg'
+  rawFilename = 'mon-qr-code'
 ): Promise<void> => {
+  const filename = sanitizeFilename(rawFilename, 'svg');
   const svgString = await QRCode.toString(qrText, {
     type: 'svg',
     margin: 2,
@@ -62,8 +93,9 @@ export const exportPDF = async (
   fgColor: string,
   bgColor: string,
   selectedType?: QRType,
-  filename = 'qr-code.pdf'
+  rawFilename = 'mon-qr-code'
 ): Promise<void> => {
+  const filename = sanitizeFilename(rawFilename, 'pdf');
   const canvas = document.createElement('canvas');
   await QRCode.toCanvas(canvas, qrText, {
     width: 800,

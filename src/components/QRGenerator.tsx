@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, AlertCircle } from 'lucide-react';
 import { QRTypeSelector } from './QRTypeSelector';
 import { QRCustomization } from './QRCustomization';
 import type { QRSize } from './QRCustomization';
 import { QRPreview } from './QRPreview';
+import { RecentQRCodes } from './RecentQRCodes';
 
 import { WebsiteForm } from './forms/WebsiteForm';
 import { TextForm } from './forms/TextForm';
@@ -21,6 +22,7 @@ import type {
   SmsData,
   ContactData,
   LocationData,
+  QRFormData,
 } from '../utils/qrFormatters';
 
 import {
@@ -35,7 +37,12 @@ import {
   formatSmsPayload,
   formatContactPayload,
   formatLocationPayload,
+  getSuggestedFilename,
 } from '../utils/qrFormatters';
+
+import type { HistoryItem } from '../types/history';
+import { getHistory, saveToHistory, deleteFromHistory, clearHistory } from '../utils/historyStorage';
+import QRCode from 'qrcode';
 
 const DEFAULT_FG = '#111827';
 const DEFAULT_BG = '#FFFFFF';
@@ -93,16 +100,24 @@ export const QRGenerator: React.FC = () => {
   const [bgColor, setBgColor] = useState<string>(DEFAULT_BG);
   const [size, setSize] = useState<QRSize>(DEFAULT_SIZE);
 
+  // Local History State
+  const [historyList, setHistoryList] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    setHistoryList(getHistory());
+  }, []);
+
   const handleSelectType = (type: QRType) => {
     setSelectedType(type);
     setError(null);
   };
 
-  const handleGenerate = (e: React.FormEvent) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     let payload = '';
+    let formDataObj: QRFormData = websiteUrl;
 
     switch (selectedType) {
       case 'website': {
@@ -117,6 +132,7 @@ export const QRGenerator: React.FC = () => {
           return;
         }
         payload = formatWebsitePayload(websiteUrl);
+        formDataObj = websiteUrl;
         break;
       }
       case 'text': {
@@ -126,6 +142,7 @@ export const QRGenerator: React.FC = () => {
           return;
         }
         payload = plainText.trim();
+        formDataObj = plainText;
         break;
       }
       case 'wifi': {
@@ -140,6 +157,7 @@ export const QRGenerator: React.FC = () => {
           return;
         }
         payload = formatWifiPayload(wifiData);
+        formDataObj = wifiData;
         break;
       }
       case 'email': {
@@ -154,6 +172,7 @@ export const QRGenerator: React.FC = () => {
           return;
         }
         payload = formatEmailPayload(emailData);
+        formDataObj = emailData;
         break;
       }
       case 'phone': {
@@ -163,6 +182,7 @@ export const QRGenerator: React.FC = () => {
           return;
         }
         payload = formatPhonePayload(phoneNum);
+        formDataObj = phoneNum;
         break;
       }
       case 'sms': {
@@ -172,6 +192,7 @@ export const QRGenerator: React.FC = () => {
           return;
         }
         payload = formatSmsPayload(smsData);
+        formDataObj = smsData;
         break;
       }
       case 'contact': {
@@ -188,6 +209,7 @@ export const QRGenerator: React.FC = () => {
           return;
         }
         payload = formatContactPayload(contactData);
+        formDataObj = contactData;
         break;
       }
       case 'location': {
@@ -207,11 +229,43 @@ export const QRGenerator: React.FC = () => {
           return;
         }
         payload = formatLocationPayload(locationData);
+        formDataObj = locationData;
         break;
       }
     }
 
     setQrText(payload);
+
+    // Generate base64 thumbnail and save to local history
+    try {
+      const dataUrl = await QRCode.toDataURL(payload, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: fgColor,
+          light: bgColor,
+        },
+      });
+
+      const filename = getSuggestedFilename(selectedType, formDataObj);
+      const title = filename.replace(/-/g, ' ');
+
+      const updatedHistory = saveToHistory({
+        type: selectedType,
+        formData: formDataObj,
+        title,
+        payload,
+        dataUrl,
+        foregroundColor: fgColor,
+        backgroundColor: bgColor,
+        size,
+        filename,
+      });
+
+      setHistoryList(updatedHistory);
+    } catch (err) {
+      console.error('Failed to create QR thumbnail for history', err);
+    }
   };
 
   const handleReset = () => {
@@ -231,11 +285,61 @@ export const QRGenerator: React.FC = () => {
     setSize(DEFAULT_SIZE);
   };
 
+  const handleReuseHistory = (item: HistoryItem) => {
+    setSelectedType(item.type);
+    setFgColor(item.foregroundColor);
+    setBgColor(item.backgroundColor);
+    setSize(item.size);
+    setQrText(item.payload);
+    setError(null);
+
+    // Populate exact form data
+    switch (item.type) {
+      case 'website':
+        setWebsiteUrl(typeof item.formData === 'string' ? item.formData : '');
+        break;
+      case 'text':
+        setPlainText(typeof item.formData === 'string' ? item.formData : '');
+        break;
+      case 'wifi':
+        setWifiData(item.formData as WifiData);
+        break;
+      case 'email':
+        setEmailData(item.formData as EmailData);
+        break;
+      case 'phone':
+        setPhoneNum(typeof item.formData === 'string' ? item.formData : '');
+        break;
+      case 'sms':
+        setSmsData(item.formData as SmsData);
+        break;
+      case 'contact':
+        setContactData(item.formData as ContactData);
+        break;
+      case 'location':
+        setLocationData(item.formData as LocationData);
+        break;
+    }
+
+    // Scroll smoothly to top of generator
+    window.scrollTo({ top: 120, behavior: 'smooth' });
+  };
+
+  const handleDeleteHistory = (id: string) => {
+    const updated = deleteFromHistory(id);
+    setHistoryList(updated);
+  };
+
+  const handleClearHistory = () => {
+    const updated = clearHistory();
+    setHistoryList(updated);
+  };
+
   return (
-    <section className="max-w-4xl mx-auto px-4 py-6">
+    <section className="max-w-6xl mx-auto px-4 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Generator Form & Customization */}
-        <div className="lg:col-span-6 space-y-6 bg-white dark:bg-slate-900/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+        <div className="lg:col-span-7 space-y-6 bg-white dark:bg-slate-900/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
           <QRTypeSelector
             selectedType={selectedType}
             onSelectType={handleSelectType}
@@ -294,14 +398,21 @@ export const QRGenerator: React.FC = () => {
           />
         </div>
 
-        {/* Right Column: Preview */}
-        <div className="lg:col-span-6 h-full min-h-[380px]">
+        {/* Right Column: Preview & History */}
+        <div className="lg:col-span-5 space-y-6">
           <QRPreview
             qrText={qrText}
             fgColor={fgColor}
             bgColor={bgColor}
             size={size}
             selectedType={selectedType}
+          />
+
+          <RecentQRCodes
+            history={historyList}
+            onReuse={handleReuseHistory}
+            onDelete={handleDeleteHistory}
+            onClearAll={handleClearHistory}
           />
         </div>
       </div>

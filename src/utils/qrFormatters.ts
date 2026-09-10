@@ -40,6 +40,14 @@ export interface LocationData {
   longitude: string;
 }
 
+export type QRFormData =
+  | string
+  | WifiData
+  | EmailData
+  | SmsData
+  | ContactData
+  | LocationData;
+
 export const isValidEmail = (email: string): boolean => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 };
@@ -140,4 +148,39 @@ export const formatLocationPayload = (data: LocationData): string => {
   const lat = data.latitude.trim();
   const lng = data.longitude.trim();
   return `https://www.google.com/maps?q=${lat},${lng}`;
+};
+
+export const getSuggestedFilename = (type: QRType, data: QRFormData): string => {
+  switch (type) {
+    case 'website': {
+      const url = typeof data === 'string' ? data : '';
+      const domain = url.replace(/^https?:\/\//i, '').split('/')[0].replace(/[^a-z0-9]/gi, '-');
+      return domain ? `qr-url-${domain}` : 'qr-code-website';
+    }
+    case 'text':
+      return 'qr-code-text';
+    case 'wifi': {
+      const wifi = data as WifiData;
+      const ssid = (wifi.ssid || 'wifi').replace(/[^a-z0-9]/gi, '-');
+      return `qr-wifi-${ssid}`;
+    }
+    case 'email': {
+      const emailObj = data as EmailData;
+      const address = (emailObj.email || 'email').split('@')[0].replace(/[^a-z0-9]/gi, '-');
+      return `qr-email-${address}`;
+    }
+    case 'phone':
+      return 'qr-code-phone';
+    case 'sms':
+      return 'qr-code-sms';
+    case 'contact': {
+      const c = data as ContactData;
+      const name = `${c.firstName}-${c.lastName}`.replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '');
+      return name ? `qr-contact-${name}` : 'qr-code-contact';
+    }
+    case 'location':
+      return 'qr-code-location';
+    default:
+      return 'qr-code';
+  }
 };
