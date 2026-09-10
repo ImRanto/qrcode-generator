@@ -1,5 +1,6 @@
 import React from 'react';
 import type { WifiData } from '../../utils/qrFormatters';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 interface WifiFormProps {
   data: WifiData;
@@ -7,6 +8,8 @@ interface WifiFormProps {
 }
 
 export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-4">
       <div>
@@ -14,14 +17,14 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
           htmlFor="wifi-ssid"
           className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
         >
-          Network Name (SSID)
+          {t('wifiSsidLabel')}
         </label>
         <input
           id="wifi-ssid"
           type="text"
           value={data.ssid}
           onChange={(e) => onChange({ ...data, ssid: e.target.value })}
-          placeholder="e.g. MyHomeWiFi"
+          placeholder={t('wifiSsidPlaceholder')}
           className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all outline-none focus:border-slate-400 dark:focus:border-slate-600 focus:ring-2 focus:ring-slate-900/10 dark:focus:ring-white/10"
         />
       </div>
@@ -32,7 +35,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
             htmlFor="wifi-security"
             className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
           >
-            Security
+            {t('wifiSecurityLabel')}
           </label>
           <select
             id="wifi-security"
@@ -45,9 +48,9 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
             }
             className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-all outline-none focus:border-slate-400 dark:focus:border-slate-600"
           >
-            <option value="WPA">WPA / WPA2 / WPA3</option>
-            <option value="WEP">WEP</option>
-            <option value="nopass">None (Open)</option>
+            <option value="WPA">{t('wifiSecWpa')}</option>
+            <option value="WEP">{t('wifiSecWep')}</option>
+            <option value="nopass">{t('wifiSecNone')}</option>
           </select>
         </div>
 
@@ -57,14 +60,14 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
               htmlFor="wifi-password"
               className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
             >
-              Password
+              {t('wifiPasswordLabel')}
             </label>
             <input
               id="wifi-password"
               type="password"
               value={data.password}
               onChange={(e) => onChange({ ...data, password: e.target.value })}
-              placeholder="Wi-Fi Password"
+              placeholder={t('wifiPasswordPlaceholder')}
               className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all outline-none focus:border-slate-400 dark:focus:border-slate-600"
             />
           </div>
@@ -73,7 +76,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
 
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-          Hidden Network
+          {t('wifiHiddenLabel')}
         </label>
         <div className="flex items-center gap-3">
           <button
@@ -85,7 +88,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
                 : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900'
             }`}
           >
-            No
+            {t('no')}
           </button>
           <button
             type="button"
@@ -96,7 +99,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
                 : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900'
             }`}
           >
-            Yes
+            {t('yes')}
           </button>
         </div>
       </div>

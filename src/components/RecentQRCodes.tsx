@@ -11,6 +11,7 @@ import {
   Check
 } from 'lucide-react';
 import { exportPNG, exportSVG, exportPDF } from '../utils/qrExporter';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface RecentQRCodesProps {
   history: HistoryItem[];
@@ -25,6 +26,7 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
   onDelete,
   onClearAll,
 }) => {
+  const { t } = useTranslation();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [previewItem, setPreviewItem] = useState<HistoryItem | null>(null);
 
@@ -35,14 +37,14 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
           <History className="w-6 h-6" />
         </div>
         <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-          No Recent QR Codes
+          {t('noHistoryTitle')}
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">
-          Generated QR codes will be saved here automatically for quick reuse and export.
+          {t('noHistorySub')}
         </p>
         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
           <ShieldCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
-          <span>Stored locally on your device</span>
+          <span>{t('storedLocallyBadge')}</span>
         </div>
       </div>
     );
@@ -79,7 +81,7 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-slate-700 dark:text-slate-300" />
           <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-            Recent QR Codes
+            {t('historyTitle')}
           </h2>
           <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
             {history.length} / 20
@@ -89,7 +91,7 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
         {/* Clear All action */}
         {showClearConfirm ? (
           <div className="flex items-center gap-1.5 animate-in fade-in duration-200">
-            <span className="text-xs text-rose-600 dark:text-rose-400 font-medium">Clear all?</span>
+            <span className="text-xs text-rose-600 dark:text-rose-400 font-medium">{t('confirmClearAll')}</span>
             <button
               onClick={() => {
                 onClearAll();
@@ -99,7 +101,7 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
               title="Confirm clear history"
             >
               <Check className="w-3.5 h-3.5" />
-              Yes
+              {t('confirmYes')}
             </button>
             <button
               onClick={() => setShowClearConfirm(false)}
@@ -115,7 +117,7 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
             className="text-xs text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 font-medium transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            Clear history
+            {t('clearHistoryBtn')}
           </button>
         )}
       </div>
@@ -175,7 +177,7 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
                 title="Reload this QR code into the editor"
               >
                 <RotateCcw className="w-3 h-3" />
-                <span>Reuse</span>
+                <span>{t('reuseBtn')}</span>
               </button>
 
               {/* Download dropdown / buttons */}
@@ -220,9 +222,9 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
       <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
         <div className="flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
-          <span className="text-[11px]">Stored locally on your device</span>
+          <span className="text-[11px]">{t('storedLocallyBadge')}</span>
         </div>
-        <span className="text-[10px] font-mono text-slate-400">100% Client-Side</span>
+        <span className="text-[10px] font-mono text-slate-400">{t('clientSideOnly')}</span>
       </div>
 
       {/* Preview Modal */}
@@ -259,7 +261,7 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
             </div>
 
             <div className="space-y-1">
-              <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">Payload:</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{t('payloadLabel')}</p>
               <p className="text-xs text-slate-700 dark:text-slate-300 font-mono bg-slate-50 dark:bg-slate-800/60 p-2 rounded-lg border border-slate-100 dark:border-slate-800 break-all max-h-24 overflow-y-auto">
                 {previewItem.payload}
               </p>
@@ -274,7 +276,7 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
                 className="flex-1 py-2 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors shadow-xs cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                Reuse in Editor
+                {t('reuseInEditorBtn')}
               </button>
             </div>
           </div>

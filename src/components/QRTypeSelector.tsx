@@ -1,4 +1,5 @@
 import React from 'react';
+import type { QRType } from '../utils/qrFormatters';
 import {
   Globe,
   FileText,
@@ -7,58 +8,55 @@ import {
   Phone,
   MessageSquare,
   User,
-  MapPin,
+  MapPin
 } from 'lucide-react';
-import type { QRType } from '../utils/qrFormatters';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface QRTypeSelectorProps {
   selectedType: QRType;
   onSelectType: (type: QRType) => void;
 }
 
-interface TypeOption {
-  id: QRType;
-  label: string;
-  icon: React.ElementType;
-}
-
-const TYPE_OPTIONS: TypeOption[] = [
-  { id: 'website', label: 'Website', icon: Globe },
-  { id: 'text', label: 'Text', icon: FileText },
-  { id: 'wifi', label: 'Wi-Fi', icon: Wifi },
-  { id: 'email', label: 'Email', icon: Mail },
-  { id: 'phone', label: 'Phone', icon: Phone },
-  { id: 'sms', label: 'SMS', icon: MessageSquare },
-  { id: 'contact', label: 'Contact', icon: User },
-  { id: 'location', label: 'Location', icon: MapPin },
-];
-
 export const QRTypeSelector: React.FC<QRTypeSelectorProps> = ({
   selectedType,
   onSelectType,
 }) => {
+  const { t } = useTranslation();
+
+  const types: { id: QRType; labelKey: any; icon: React.ReactNode }[] = [
+    { id: 'website', labelKey: 'typeWebsite', icon: <Globe className="w-3.5 h-3.5" /> },
+    { id: 'text', labelKey: 'typeText', icon: <FileText className="w-3.5 h-3.5" /> },
+    { id: 'wifi', labelKey: 'typeWifi', icon: <Wifi className="w-3.5 h-3.5" /> },
+    { id: 'email', labelKey: 'typeEmail', icon: <Mail className="w-3.5 h-3.5" /> },
+    { id: 'phone', labelKey: 'typePhone', icon: <Phone className="w-3.5 h-3.5" /> },
+    { id: 'sms', labelKey: 'typeSms', icon: <MessageSquare className="w-3.5 h-3.5" /> },
+    { id: 'contact', labelKey: 'typeContact', icon: <User className="w-3.5 h-3.5" /> },
+    { id: 'location', labelKey: 'typeLocation', icon: <MapPin className="w-3.5 h-3.5" /> },
+  ];
+
   return (
-    <div className="space-y-3">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-        What do you want to create?
-      </h2>
+    <div className="space-y-2">
+      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+        {t('selectTypeLabel')}
+      </label>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {TYPE_OPTIONS.map((opt) => {
-          const Icon = opt.icon;
-          const isSelected = selectedType === opt.id;
+        {types.map((type) => {
+          const isSelected = selectedType === type.id;
           return (
             <button
-              key={opt.id}
+              key={type.id}
               type="button"
-              onClick={() => onSelectType(opt.id)}
-              className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+              onClick={() => onSelectType(type.id)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
                 isSelected
-                  ? 'border-slate-900 dark:border-white bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
-                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                  ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-slate-900 dark:border-slate-100 shadow-2xs font-semibold'
+                  : 'bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-white dark:text-slate-900' : 'text-slate-500 dark:text-slate-400'}`} />
-              <span className="truncate">{opt.label}</span>
+              <span className={isSelected ? 'text-white dark:text-slate-900' : 'text-slate-500 dark:text-slate-400'}>
+                {type.icon}
+              </span>
+              <span className="truncate">{t(type.labelKey)}</span>
             </button>
           );
         })}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Download, Check } from 'lucide-react';
 import type { QRType } from '../utils/qrFormatters';
 import { exportPNG, exportSVG, exportPDF, sanitizeFilename } from '../utils/qrExporter';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface DownloadMenuProps {
   qrText: string;
@@ -20,6 +21,7 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
   selectedType,
   disabled = false,
 }) => {
+  const { t } = useTranslation();
   const [rawFilename, setRawFilename] = useState('mon-qr-code');
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('png');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
@@ -55,7 +57,7 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
       {downloadSuccess && (
         <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-emerald-800 dark:text-emerald-200 text-xs font-medium flex items-center justify-center gap-2 animate-fadeIn">
           <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-          <span>Downloaded successfully</span>
+          <span>{t('downloadSuccess')}</span>
         </div>
       )}
 
@@ -65,14 +67,14 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
           htmlFor="export-filename-input"
           className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
         >
-          File Name
+          {t('filenameLabel')}
         </label>
         <input
           id="export-filename-input"
           type="text"
           value={rawFilename}
           onChange={(e) => setRawFilename(e.target.value)}
-          placeholder="mon-qr-code"
+          placeholder={t('filenamePlaceholder')}
           className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all outline-none focus:border-slate-400 dark:focus:border-slate-600 focus:ring-2 focus:ring-slate-900/10 dark:focus:ring-white/10"
         />
       </div>
@@ -103,10 +105,10 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
       {/* Bonus UX: Live Sanitized Filename Preview & Hint */}
       <div className="space-y-1 text-center">
         <div className="text-xs font-mono text-slate-500 dark:text-slate-400 truncate">
-          Final name: <span className="font-semibold text-slate-800 dark:text-slate-200">{previewFinalName}</span>
+          {t('finalFilenameLabel')} <span className="font-semibold text-slate-800 dark:text-slate-200">{previewFinalName}</span>
         </div>
         <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-tight">
-          The file will be downloaded with the extension corresponding to the chosen format.
+          {t('filenameHint')}
         </p>
       </div>
 
@@ -118,7 +120,13 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
         className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.99] text-white dark:text-slate-900 font-medium text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Download className="w-4 h-4" />
-        <span>Download {selectedFormat.toUpperCase()}</span>
+        <span>
+          {selectedFormat === 'png'
+            ? t('downloadPngBtn')
+            : selectedFormat === 'svg'
+            ? t('downloadSvgBtn')
+            : t('downloadPdfBtn')}
+        </span>
       </button>
     </div>
   );

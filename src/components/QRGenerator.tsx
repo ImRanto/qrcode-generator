@@ -43,6 +43,7 @@ import {
 import type { HistoryItem } from '../types/history';
 import { getHistory, saveToHistory, deleteFromHistory, clearHistory } from '../utils/historyStorage';
 import QRCode from 'qrcode';
+import { useTranslation } from '../i18n/LanguageContext';
 
 const DEFAULT_FG = '#111827';
 const DEFAULT_BG = '#FFFFFF';
@@ -81,6 +82,7 @@ const INITIAL_LOCATION: LocationData = {
 };
 
 export const QRGenerator: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedType, setSelectedType] = useState<QRType>('website');
 
   // Form states
@@ -95,7 +97,7 @@ export const QRGenerator: React.FC = () => {
 
   // QR Output & Options
   const [qrText, setQrText] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   const [fgColor, setFgColor] = useState<string>(DEFAULT_FG);
   const [bgColor, setBgColor] = useState<string>(DEFAULT_BG);
   const [size, setSize] = useState<QRSize>(DEFAULT_SIZE);
@@ -109,12 +111,12 @@ export const QRGenerator: React.FC = () => {
 
   const handleSelectType = (type: QRType) => {
     setSelectedType(type);
-    setError(null);
+    setErrorKey(null);
   };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setErrorKey(null);
 
     let payload = '';
     let formDataObj: QRFormData = websiteUrl;
@@ -122,12 +124,12 @@ export const QRGenerator: React.FC = () => {
     switch (selectedType) {
       case 'website': {
         if (!websiteUrl.trim()) {
-          setError('Please enter a website URL.');
+          setErrorKey('errEmptyWebsite');
           setQrText('');
           return;
         }
         if (!isValidUrl(websiteUrl)) {
-          setError('Please enter a valid website URL.');
+          setErrorKey('errInvalidWebsite');
           setQrText('');
           return;
         }
@@ -137,7 +139,7 @@ export const QRGenerator: React.FC = () => {
       }
       case 'text': {
         if (!plainText.trim()) {
-          setError('Please enter some text.');
+          setErrorKey('errEmptyText');
           setQrText('');
           return;
         }
@@ -147,12 +149,12 @@ export const QRGenerator: React.FC = () => {
       }
       case 'wifi': {
         if (!wifiData.ssid.trim()) {
-          setError('Please enter a network SSID.');
+          setErrorKey('errEmptySsid');
           setQrText('');
           return;
         }
         if (wifiData.security !== 'nopass' && !wifiData.password) {
-          setError('Please enter a Wi-Fi password or select Open security.');
+          setErrorKey('errEmptyWifiPass');
           setQrText('');
           return;
         }
@@ -162,12 +164,12 @@ export const QRGenerator: React.FC = () => {
       }
       case 'email': {
         if (!emailData.email.trim()) {
-          setError('Please enter an email address.');
+          setErrorKey('errEmptyEmail');
           setQrText('');
           return;
         }
         if (!isValidEmail(emailData.email)) {
-          setError('Please enter a valid email address.');
+          setErrorKey('errInvalidEmail');
           setQrText('');
           return;
         }
@@ -177,7 +179,7 @@ export const QRGenerator: React.FC = () => {
       }
       case 'phone': {
         if (!phoneNum.trim()) {
-          setError('Please enter a phone number.');
+          setErrorKey('errEmptyPhone');
           setQrText('');
           return;
         }
@@ -187,7 +189,7 @@ export const QRGenerator: React.FC = () => {
       }
       case 'sms': {
         if (!smsData.phone.trim()) {
-          setError('Please enter a phone number.');
+          setErrorKey('errEmptyPhone');
           setQrText('');
           return;
         }
@@ -199,12 +201,12 @@ export const QRGenerator: React.FC = () => {
         const hasName = Boolean(contactData.firstName.trim() || contactData.lastName.trim());
         const hasInfo = Boolean(contactData.phone.trim() || contactData.email.trim() || contactData.organization.trim());
         if (!hasName && !hasInfo) {
-          setError('Please enter at least a name, phone, or email for the contact.');
+          setErrorKey('errEmptyContact');
           setQrText('');
           return;
         }
         if (contactData.email.trim() && !isValidEmail(contactData.email)) {
-          setError('Please enter a valid email address for the contact.');
+          setErrorKey('errInvalidContactEmail');
           setQrText('');
           return;
         }
@@ -214,17 +216,17 @@ export const QRGenerator: React.FC = () => {
       }
       case 'location': {
         if (!locationData.latitude.trim() || !locationData.longitude.trim()) {
-          setError('Please enter both latitude and longitude.');
+          setErrorKey('errEmptyLocation');
           setQrText('');
           return;
         }
         if (!isValidLatitude(locationData.latitude)) {
-          setError('Latitude must be a valid number between -90 and 90.');
+          setErrorKey('errInvalidLat');
           setQrText('');
           return;
         }
         if (!isValidLongitude(locationData.longitude)) {
-          setError('Longitude must be a valid number between -180 and 180.');
+          setErrorKey('errInvalidLng');
           setQrText('');
           return;
         }
@@ -279,7 +281,7 @@ export const QRGenerator: React.FC = () => {
     setLocationData(INITIAL_LOCATION);
 
     setQrText('');
-    setError(null);
+    setErrorKey(null);
     setFgColor(DEFAULT_FG);
     setBgColor(DEFAULT_BG);
     setSize(DEFAULT_SIZE);
@@ -291,7 +293,7 @@ export const QRGenerator: React.FC = () => {
     setBgColor(item.backgroundColor);
     setSize(item.size);
     setQrText(item.payload);
-    setError(null);
+    setErrorKey(null);
 
     // Populate exact form data
     switch (item.type) {
@@ -371,10 +373,10 @@ export const QRGenerator: React.FC = () => {
               <LocationForm data={locationData} onChange={setLocationData} />
             )}
 
-            {error && (
+            {errorKey && (
               <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-red-600 dark:text-red-400">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>{error}</span>
+                <span>{t(errorKey as any)}</span>
               </div>
             )}
 
@@ -383,7 +385,7 @@ export const QRGenerator: React.FC = () => {
               className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.99] text-white dark:text-slate-900 font-medium text-sm shadow-xs transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Generate QR Code</span>
+              <span>{t('generateBtn')}</span>
             </button>
           </form>
 

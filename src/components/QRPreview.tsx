@@ -4,6 +4,7 @@ import { QrCode, Check, Copy } from 'lucide-react';
 import type { QRSize } from './QRCustomization';
 import type { QRType } from '../utils/qrFormatters';
 import { DownloadMenu } from './DownloadMenu';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface QRPreviewProps {
   qrText: string;
@@ -26,6 +27,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   size,
   selectedType,
 }) => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [genError, setGenError] = useState<string | null>(null);
@@ -99,7 +101,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             </span>
             <button
               onClick={handleCopyText}
-              title="Copy text to clipboard"
+              title={copied ? t('copiedPayload') : t('copyPayload')}
               className="p-1 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer shrink-0"
             >
               {copied ? (
@@ -125,10 +127,10 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             <QrCode className="w-10 h-10 stroke-[1.5]" />
           </div>
           <h3 className="font-semibold text-slate-900 dark:text-white text-base mb-1">
-            Your QR code will appear here
+            {t('emptyStateTitle')}
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {genError || 'Enter some text or fill the form to generate your QR code.'}
+            {genError || t('emptyStateSubtitle')}
           </p>
           <canvas ref={canvasRef} className="hidden" />
         </div>

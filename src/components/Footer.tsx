@@ -1,17 +1,29 @@
 import React from 'react';
+import { QrCode } from 'lucide-react';
+import { useTranslation } from '../i18n/LanguageContext';
 
 export const Footer: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
-    <footer className="border-t border-slate-200/80 dark:border-slate-800/80 py-8 bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 text-xs text-center transition-colors">
-      <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex flex-col sm:text-left gap-1">
-          <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm">QR Generator</span>
-          <span>Simple QR code generation, entirely in your browser.</span>
+    <footer className="w-full border-t border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-950 py-8 transition-colors">
+      <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900">
+            <QrCode className="w-4 h-4" />
+          </div>
+          <span className="font-bold text-sm text-slate-900 dark:text-white">
+            {t('appTitle')}
+          </span>
         </div>
-        <div className="flex flex-col sm:text-right gap-1">
-          <span>© 2026 QR Generator</span>
-          <span className="text-slate-400 dark:text-slate-500">Made with React & Tailwind CSS</span>
-        </div>
+
+        <p className="text-xs text-slate-500 dark:text-slate-400 text-center sm:text-left">
+          {t('footerSub')}
+        </p>
+
+        <p className="text-xs text-slate-400 dark:text-slate-500">
+          {t('footerCopyright')}
+        </p>
       </div>
     </footer>
   );
