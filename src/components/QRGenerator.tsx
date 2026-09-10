@@ -301,6 +301,7 @@ export const QRGenerator: React.FC = () => {
             fgColor={fgColor}
             bgColor={bgColor}
             size={size}
+            selectedType={selectedType}
           />
         </div>
       </div>

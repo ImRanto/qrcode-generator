@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { Download, QrCode, Check, Copy } from 'lucide-react';
+import { QrCode, Check, Copy } from 'lucide-react';
 import type { QRSize } from './QRCustomization';
+import type { QRType } from '../utils/qrFormatters';
+import { DownloadMenu } from './DownloadMenu';
 
 interface QRPreviewProps {
   qrText: string;
   fgColor: string;
   bgColor: string;
   size: QRSize;
+  selectedType?: QRType;
 }
 
 const SIZE_MAP: Record<QRSize, number> = {
@@ -21,9 +24,9 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   fgColor,
   bgColor,
   size,
+  selectedType,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [genError, setGenError] = useState<string | null>(null);
 
@@ -31,7 +34,6 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
 
   useEffect(() => {
     if (!qrText || qrText.trim() === '') {
-      setDownloadUrl(null);
       setGenError(null);
       return;
     }
@@ -55,29 +57,12 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
         if (err) {
           console.error('QR code generation error:', err);
           setGenError('Failed to generate QR code for this input.');
-          setDownloadUrl(null);
         } else {
           setGenError(null);
-          try {
-            const dataUrl = canvas.toDataURL('image/png');
-            setDownloadUrl(dataUrl);
-          } catch (e) {
-            console.error('Failed to convert canvas to Data URL:', e);
-          }
         }
       }
     );
   }, [qrText, fgColor, bgColor, numericSize]);
-
-  const handleDownload = () => {
-    if (!downloadUrl) return;
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = 'qr-code.png';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   const handleCopyText = async () => {
     if (!qrText) return;
@@ -96,7 +81,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
     <div className="flex flex-col items-center justify-center h-full p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 shadow-xs transition-all">
       {hasQR ? (
         <div className="flex flex-col items-center w-full animate-fadeIn">
-          {/* QR Code Container with white quiet zone padding */}
+          {/* QR Code Container with quiet zone padding */}
           <div
             className="p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 transition-all flex items-center justify-center max-w-full overflow-hidden"
             style={{ backgroundColor: bgColor }}
@@ -125,15 +110,13 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             </button>
           </div>
 
-          {/* Download PNG Button */}
-          <button
-            onClick={handleDownload}
-            disabled={!downloadUrl}
-            className="mt-5 w-full max-w-sm inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.99] text-white dark:text-slate-900 font-medium text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Download className="w-4 h-4" />
-            <span>Download PNG</span>
-          </button>
+          {/* Multi-Format Download Menu */}
+          <DownloadMenu
+            qrText={qrText}
+            fgColor={fgColor}
+            bgColor={bgColor}
+            selectedType={selectedType}
+          />
         </div>
       ) : (
         /* Empty State */
@@ -145,7 +128,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             Your QR code will appear here
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {genError || 'Enter some text or a URL to generate your QR code.'}
+            {genError || 'Enter some text or fill the form to generate your QR code.'}
           </p>
           <canvas ref={canvasRef} className="hidden" />
         </div>
