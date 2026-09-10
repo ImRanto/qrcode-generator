@@ -29,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
           </button>
 
           <a
-            href="https://github.com/ImRanto/qrcode-generator"
+            href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub Repository"
