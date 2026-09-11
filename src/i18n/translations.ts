@@ -134,11 +134,14 @@ export const translations = {
     sizeLarge: 'Large',
     resetBtn: 'Reset',
 
-    // Preview
+    // Preview & Contrast Validation
     emptyStateTitle: 'Your QR code will appear here',
     emptyStateSubtitle: 'Enter some text or a URL to generate your QR code.',
     copyPayload: 'Copy QR Content',
     copiedPayload: 'Copied!',
+    contrastOptimal: 'Recommended contrast',
+    contrastWeakWarning: 'Low contrast. This QR Code may be difficult to scan.',
+    payloadLengthWarning: 'Very long content. The QR matrix is dense and may require zooming to scan.',
 
     // Export / Download Menu
     exportMenuTitle: 'Export Options',
@@ -316,11 +319,14 @@ export const translations = {
     sizeLarge: 'Grande',
     resetBtn: 'Réinitialiser',
 
-    // Preview
+    // Preview & Contrast Validation
     emptyStateTitle: 'Votre QR code apparaîtra ici',
     emptyStateSubtitle: 'Saisissez du texte ou une URL pour générer votre QR code.',
     copyPayload: 'Copier le contenu du QR',
     copiedPayload: 'Copié !',
+    contrastOptimal: 'Contraste recommandé',
+    contrastWeakWarning: 'Contraste faible. Ce QR Code pourrait être difficile à scanner.',
+    payloadLengthWarning: 'Contenu très long. La matrice QR est dense et pourrait nécessiter un zoom.',
 
     // Export / Download Menu
     exportMenuTitle: 'Options d\'exportation',
