@@ -54,23 +54,27 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* QR Color */}
         <div className="space-y-2">
-          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
+          <label htmlFor="qr-fg-color" className="block text-xs font-medium text-slate-600 dark:text-slate-400">
             {t('qrColorLabel')}
           </label>
           <div className="flex items-center gap-2">
             <input
+              id="qr-fg-color"
               type="color"
               value={fgColor}
               onChange={(e) => setFgColor(e.target.value)}
+              aria-label={t('qrColorLabel')}
               className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer bg-transparent"
             />
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1" role="group" aria-label={t('qrColorLabel')}>
               {PRESET_COLORS.map((color) => (
                 <button
                   key={color}
                   type="button"
                   onClick={() => setFgColor(color)}
                   style={{ backgroundColor: color }}
+                  aria-pressed={fgColor === color}
+                  aria-label={`Color preset ${color}`}
                   className={`w-5 h-5 rounded-full border transition-transform cursor-pointer ${
                     fgColor === color
                       ? 'scale-110 border-slate-900 dark:border-white ring-2 ring-slate-900/20 dark:ring-white/20'
@@ -84,14 +88,16 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
 
         {/* Background Color */}
         <div className="space-y-2">
-          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
+          <label htmlFor="qr-bg-color" className="block text-xs font-medium text-slate-600 dark:text-slate-400">
             {t('bgColorLabel')}
           </label>
           <div className="flex items-center gap-2">
             <input
+              id="qr-bg-color"
               type="color"
               value={bgColor}
               onChange={(e) => setBgColor(e.target.value)}
+              aria-label={t('bgColorLabel')}
               className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer bg-transparent"
             />
             <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">
@@ -105,21 +111,25 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
           <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
             {t('sizeLabel')}
           </label>
-          <div className="flex items-center rounded-xl bg-slate-100 dark:bg-slate-800/80 p-1 border border-slate-200/80 dark:border-slate-700/80">
+          <div className="flex items-center rounded-xl bg-slate-100 dark:bg-slate-800/80 p-1 border border-slate-200/80 dark:border-slate-700/80" role="group" aria-label={t('sizeLabel')}>
             {(['Small', 'Medium', 'Large'] as QRSize[]).map((s) => {
               const labelKey = s === 'Small' ? 'sizeSmall' : s === 'Medium' ? 'sizeMedium' : 'sizeLarge';
+              const sizeLabel = t(labelKey as any);
+              const isSelected = size === s;
               return (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setSize(s)}
+                  aria-pressed={isSelected}
+                  aria-label={sizeLabel}
                   className={`flex-1 py-1 text-xs font-medium rounded-lg transition-all cursor-pointer ${
-                    size === s
+                    isSelected
                       ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  {t(labelKey as any)}
+                  {sizeLabel}
                 </button>
               );
             })}

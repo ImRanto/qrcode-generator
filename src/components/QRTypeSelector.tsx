@@ -39,14 +39,17 @@ export const QRTypeSelector: React.FC<QRTypeSelectorProps> = ({
       <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
         {t('selectTypeLabel')}
       </label>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" role="group" aria-label={t('selectTypeLabel')}>
         {types.map((type) => {
           const isSelected = selectedType === type.id;
+          const labelText = t(type.labelKey);
           return (
             <button
               key={type.id}
               type="button"
               onClick={() => onSelectType(type.id)}
+              aria-pressed={isSelected}
+              aria-label={labelText}
               className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
                 isSelected
                   ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-slate-900 dark:border-slate-100 shadow-2xs font-semibold'
@@ -56,7 +59,7 @@ export const QRTypeSelector: React.FC<QRTypeSelectorProps> = ({
               <span className={isSelected ? 'text-white dark:text-slate-900' : 'text-slate-500 dark:text-slate-400'}>
                 {type.icon}
               </span>
-              <span className="truncate">{t(type.labelKey)}</span>
+              <span className="truncate">{labelText}</span>
             </button>
           );
         })}

@@ -78,10 +78,12 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
         <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
           {t('wifiHiddenLabel')}
         </label>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" role="group" aria-label={t('wifiHiddenLabel')}>
           <button
             type="button"
             onClick={() => onChange({ ...data, hidden: false })}
+            aria-pressed={!data.hidden}
+            aria-label={`${t('wifiHiddenLabel')}: ${t('no')}`}
             className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
               !data.hidden
                 ? 'border-slate-900 dark:border-white bg-slate-900 text-white dark:bg-white dark:text-slate-900'
@@ -93,6 +95,8 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
           <button
             type="button"
             onClick={() => onChange({ ...data, hidden: true })}
+            aria-pressed={data.hidden}
+            aria-label={`${t('wifiHiddenLabel')}: ${t('yes')}`}
             className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
               data.hidden
                 ? 'border-slate-900 dark:border-white bg-slate-900 text-white dark:bg-white dark:text-slate-900'
