@@ -1,6 +1,6 @@
 import React from 'react';
 import { Palette, RefreshCw } from 'lucide-react';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 export type QRSize = 'Small' | 'Medium' | 'Large';
 
@@ -44,6 +44,7 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
         <button
           type="button"
           onClick={onReset}
+          aria-label={t('resetBtn')}
           className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
         >
           <RefreshCw className="w-3 h-3" />
@@ -70,6 +71,7 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
                   key={color}
                   type="button"
                   onClick={() => setFgColor(color)}
+                  aria-label={`Select color ${color}`}
                   style={{ backgroundColor: color }}
                   className={`w-5 h-5 rounded-full border transition-transform cursor-pointer ${
                     fgColor === color

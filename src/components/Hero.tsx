@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 import { ShieldCheck, MonitorCheck } from 'lucide-react';
 
 export const Hero: React.FC = () => {

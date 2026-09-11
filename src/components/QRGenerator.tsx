@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Sparkles, AlertCircle } from 'lucide-react';
 import { QRTemplates } from './QRTemplates';
 import { QRTypeSelector } from './QRTypeSelector';
@@ -45,7 +45,7 @@ import type { HistoryItem } from '../types/history';
 import type { QRTemplate } from '../types/template';
 import { getHistory, saveToHistory, deleteFromHistory, clearHistory } from '../utils/historyStorage';
 import QRCode from 'qrcode';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 const DEFAULT_FG = '#111827';
 const DEFAULT_BG = '#FFFFFF';
@@ -105,11 +105,7 @@ export const QRGenerator: React.FC = () => {
   const [size, setSize] = useState<QRSize>(DEFAULT_SIZE);
 
   // Local History State
-  const [historyList, setHistoryList] = useState<HistoryItem[]>([]);
-
-  useEffect(() => {
-    setHistoryList(getHistory());
-  }, []);
+  const [historyList, setHistoryList] = useState<HistoryItem[]>(() => getHistory());
 
   const handleSelectType = (type: QRType) => {
     setSelectedType(type);

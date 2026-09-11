@@ -1,6 +1,6 @@
 import React from 'react';
 import type { SmsData } from '../../utils/qrFormatters';
-import { useTranslation } from '../../i18n/LanguageContext';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface SmsFormProps {
   data: SmsData;

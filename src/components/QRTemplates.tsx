@@ -1,7 +1,7 @@
 import React from 'react';
 import type { QRTemplate } from '../types/template';
 import { TEMPLATES_LIST } from '../types/template';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 import {
   Globe,
   Wifi,
