@@ -31,6 +31,36 @@ export const sanitizeFilename = (
   return `${cleaned}.${format}`;
 };
 
+export const getQRPngFile = async (
+  qrText: string,
+  fgColor: string,
+  bgColor: string,
+  rawFilename = 'mon-qr-code'
+): Promise<File> => {
+  const filename = sanitizeFilename(rawFilename, 'png');
+  const canvas = document.createElement('canvas');
+  await QRCode.toCanvas(canvas, qrText, {
+    width: 1024,
+    margin: 2,
+    color: {
+      dark: fgColor,
+      light: bgColor,
+    },
+    errorCorrectionLevel: 'M',
+  });
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], filename, { type: 'image/png' });
+        resolve(file);
+      } else {
+        reject(new Error('Failed to generate PNG blob for sharing'));
+      }
+    }, 'image/png');
+  });
+};
+
 export const exportPNG = async (
   qrText: string,
   fgColor: string,

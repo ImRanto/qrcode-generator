@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Download, Check } from 'lucide-react';
+import { Download, Check, Copy, Share2 } from 'lucide-react';
 import type { QRType } from '../utils/qrFormatters';
-import { exportPNG, exportSVG, exportPDF, sanitizeFilename } from '../utils/qrExporter';
+import { exportPNG, exportSVG, exportPDF, sanitizeFilename, getQRPngFile } from '../utils/qrExporter';
 import { useTranslation } from '../i18n/useTranslation';
 
 interface DownloadMenuProps {
@@ -27,7 +27,64 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  // Quick Action States
+  const [copied, setCopied] = useState(false);
+  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
+
   const previewFinalName = sanitizeFilename(rawFilename, selectedFormat);
+
+  const handleCopy = async () => {
+    if (!qrText || disabled) return;
+    try {
+      await navigator.clipboard.writeText(qrText);
+      setCopied(true);
+      setFeedbackMsg(t('copiedPayload'));
+      setTimeout(() => {
+        setCopied(false);
+        setFeedbackMsg(null);
+      }, 2500);
+    } catch (err) {
+      console.error('Copy failed', err);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!qrText || disabled) return;
+
+    try {
+      const shareTitle = rawFilename.trim() || 'QR Code';
+      if (navigator.share) {
+        let fileToShare: File | null = null;
+        try {
+          fileToShare = await getQRPngFile(qrText, fgColor, bgColor, rawFilename);
+        } catch {
+          fileToShare = null;
+        }
+
+        const shareData: ShareData = {
+          title: shareTitle,
+          text: qrText,
+        };
+
+        if (fileToShare && navigator.canShare && navigator.canShare({ files: [fileToShare] })) {
+          shareData.files = [fileToShare];
+        }
+
+        await navigator.share(shareData);
+        setFeedbackMsg(t('sharedSuccess'));
+        setTimeout(() => setFeedbackMsg(null), 2500);
+      } else {
+        // Fallback for browsers without Web Share API
+        await navigator.clipboard.writeText(qrText);
+        setFeedbackMsg(t('shareFallbackDesc'));
+        setTimeout(() => setFeedbackMsg(null), 3500);
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.error('Share failed', err);
+      }
+    }
+  };
 
   const handleDownload = async () => {
     if (!qrText || disabled || isExporting) return;
@@ -53,11 +110,51 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
 
   return (
     <div className="w-full max-w-sm mt-5 space-y-4">
+      {/* Quick Actions Bar [ Copy ] [ Share ] [ Download ] */}
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          type="button"
+          disabled={disabled || !qrText}
+          onClick={handleCopy}
+          aria-label={t('copyBtn')}
+          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-100 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+        >
+          {copied ? (
+            <Check className="w-3.5 h-3.5 text-emerald-500" />
+          ) : (
+            <Copy className="w-3.5 h-3.5" />
+          )}
+          <span>{copied ? t('copiedPayload') : t('copyBtn')}</span>
+        </button>
+
+        <button
+          type="button"
+          disabled={disabled || !qrText}
+          onClick={handleShare}
+          aria-label={t('shareBtn')}
+          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-100 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+        >
+          <Share2 className="w-3.5 h-3.5" />
+          <span>{t('shareBtn')}</span>
+        </button>
+
+        <button
+          type="button"
+          disabled={disabled || isExporting || !qrText}
+          onClick={handleDownload}
+          aria-label={t('downloadBtn')}
+          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-xs font-semibold transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>{t('downloadBtn')}</span>
+        </button>
+      </div>
+
       {/* Feedback Toast */}
-      {downloadSuccess && (
-        <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-emerald-800 dark:text-emerald-200 text-xs font-medium flex items-center justify-center gap-2 animate-fadeIn">
+      {(downloadSuccess || feedbackMsg) && (
+        <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-emerald-800 dark:text-emerald-200 text-xs font-medium flex items-center justify-center gap-2 animate-fadeIn text-center">
           <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-          <span>{t('downloadSuccess')}</span>
+          <span>{feedbackMsg || t('downloadSuccess')}</span>
         </div>
       )}
 

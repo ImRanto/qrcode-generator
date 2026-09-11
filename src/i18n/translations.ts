@@ -103,6 +103,11 @@ export const translations = {
 
     // Actions
     generateBtn: 'Generate QR Code',
+    copyBtn: 'Copy',
+    shareBtn: 'Share',
+    downloadBtn: 'Download',
+    sharedSuccess: 'Shared successfully!',
+    shareFallbackDesc: 'Link copied to clipboard (Sharing unsupported on this browser).',
 
     // Validation & Errors
     errEmptyWebsite: 'Please enter a website URL.',
@@ -280,6 +285,11 @@ export const translations = {
 
     // Actions
     generateBtn: 'Générer le QR Code',
+    copyBtn: 'Copier',
+    shareBtn: 'Partager',
+    downloadBtn: 'Télécharger',
+    sharedSuccess: 'Partagé avec succès !',
+    shareFallbackDesc: 'Lien copié dans le presse-papiers (Partage non supporté sur ce navigateur).',
 
     // Validation & Errors
     errEmptyWebsite: 'Veuillez saisir une URL de site Web.',
