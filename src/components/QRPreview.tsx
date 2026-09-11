@@ -4,7 +4,7 @@ import { QrCode, Check, Copy } from 'lucide-react';
 import type { QRSize } from './QRCustomization';
 import type { QRType } from '../utils/qrFormatters';
 import { DownloadMenu } from './DownloadMenu';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface QRPreviewProps {
   qrText: string;
@@ -36,7 +36,6 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
 
   useEffect(() => {
     if (!qrText || qrText.trim() === '') {
-      setGenError(null);
       return;
     }
 

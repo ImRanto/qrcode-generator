@@ -1,6 +1,6 @@
 import React from 'react';
 import type { EmailData } from '../../utils/qrFormatters';
-import { useTranslation } from '../../i18n/LanguageContext';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface EmailFormProps {
   data: EmailData;

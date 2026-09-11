@@ -10,7 +10,7 @@ import {
   User,
   MapPin
 } from 'lucide-react';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface QRTypeSelectorProps {
   selectedType: QRType;

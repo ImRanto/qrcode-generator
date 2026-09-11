@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Download, Check } from 'lucide-react';
 import type { QRType } from '../utils/qrFormatters';
 import { exportPNG, exportSVG, exportPDF, sanitizeFilename } from '../utils/qrExporter';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface DownloadMenuProps {
   qrText: string;
@@ -90,6 +90,7 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
               key={fmt}
               type="button"
               onClick={() => setSelectedFormat(fmt)}
+              aria-label={`Select format ${fmt.toUpperCase()}`}
               className={`py-1.5 text-xs font-semibold uppercase rounded-lg border transition-all cursor-pointer ${
                 selectedFormat === fmt
                   ? 'border-slate-900 dark:border-white bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
@@ -117,6 +118,13 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
         type="button"
         disabled={disabled || isExporting}
         onClick={handleDownload}
+        aria-label={
+          selectedFormat === 'png'
+            ? t('downloadPngBtn')
+            : selectedFormat === 'svg'
+            ? t('downloadSvgBtn')
+            : t('downloadPdfBtn')
+        }
         className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.99] text-white dark:text-slate-900 font-medium text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Download className="w-4 h-4" />

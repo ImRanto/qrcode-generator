@@ -11,7 +11,7 @@ import {
   Check
 } from 'lucide-react';
 import { exportPNG, exportSVG, exportPDF } from '../utils/qrExporter';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface RecentQRCodesProps {
   history: HistoryItem[];
@@ -93,10 +93,12 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
           <div className="flex items-center gap-1.5 animate-in fade-in duration-200">
             <span className="text-xs text-rose-600 dark:text-rose-400 font-medium">{t('confirmClearAll')}</span>
             <button
+              type="button"
               onClick={() => {
                 onClearAll();
                 setShowClearConfirm(false);
               }}
+              aria-label={t('confirmYes')}
               className="p-1 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold px-2 flex items-center gap-1 transition-colors cursor-pointer"
               title="Confirm clear history"
             >
@@ -104,7 +106,9 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
               {t('confirmYes')}
             </button>
             <button
+              type="button"
               onClick={() => setShowClearConfirm(false)}
+              aria-label="Cancel"
               className="p-1 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-medium px-2 transition-colors cursor-pointer"
               title="Cancel"
             >
@@ -113,7 +117,9 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
           </div>
         ) : (
           <button
+            type="button"
             onClick={() => setShowClearConfirm(true)}
+            aria-label={t('clearHistoryBtn')}
             className="text-xs text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 font-medium transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -132,7 +138,9 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
             <div className="flex items-start gap-3">
               {/* Thumbnail */}
               <button
+                type="button"
                 onClick={() => setPreviewItem(item)}
+                aria-label={`Preview ${item.title || item.filename}`}
                 className="shrink-0 p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs hover:scale-105 transition-transform cursor-pointer relative group/thumb"
                 title="Click to view large preview"
               >
@@ -172,7 +180,9 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
             <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-700/50 flex items-center justify-between gap-1">
               {/* Reuse button */}
               <button
+                type="button"
                 onClick={() => onReuse(item)}
+                aria-label={`${t('reuseBtn')} ${item.title || item.filename}`}
                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200 text-xs font-medium transition-colors shadow-2xs cursor-pointer"
                 title="Reload this QR code into the editor"
               >
@@ -183,21 +193,27 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
               {/* Download dropdown / buttons */}
               <div className="flex items-center gap-1">
                 <button
+                  type="button"
                   onClick={() => handleDownloadQuick(item, 'png')}
+                  aria-label={`Download PNG ${item.title || item.filename}`}
                   className="px-2 py-1 rounded-md text-[11px] font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   title="Download PNG"
                 >
                   PNG
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleDownloadQuick(item, 'svg')}
+                  aria-label={`Download SVG ${item.title || item.filename}`}
                   className="px-2 py-1 rounded-md text-[11px] font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   title="Download SVG"
                 >
                   SVG
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleDownloadQuick(item, 'pdf')}
+                  aria-label={`Download PDF ${item.title || item.filename}`}
                   className="px-2 py-1 rounded-md text-[11px] font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   title="Download PDF"
                 >
@@ -206,7 +222,9 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
 
                 {/* Delete button */}
                 <button
+                  type="button"
                   onClick={() => onDelete(item.id)}
+                  aria-label={`${t('deleteBtn')} ${item.title || item.filename}`}
                   className="p-1 rounded-md text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors ml-1 cursor-pointer"
                   title="Delete from history"
                 >
@@ -241,7 +259,9 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => setPreviewItem(null)}
+                aria-label="Close modal"
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -269,10 +289,12 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
 
             <div className="flex items-center gap-2 pt-2">
               <button
+                type="button"
                 onClick={() => {
                   onReuse(previewItem);
                   setPreviewItem(null);
                 }}
+                aria-label={t('reuseInEditorBtn')}
                 className="flex-1 py-2 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors shadow-xs cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />

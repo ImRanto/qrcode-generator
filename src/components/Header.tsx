@@ -1,6 +1,6 @@
 import React from 'react';
 import { QrCode, Sun, Moon, Globe } from 'lucide-react';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface HeaderProps {
   darkMode: boolean;
@@ -29,7 +29,9 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
           <div className="flex items-center rounded-xl bg-slate-100 dark:bg-slate-800/80 p-1 border border-slate-200 dark:border-slate-700/60">
             <Globe className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 ml-1.5 mr-1" />
             <button
+              type="button"
               onClick={() => setLanguage('en')}
+              aria-label="English"
               className={`px-2 py-0.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 language === 'en'
                   ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs'
@@ -39,7 +41,9 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
               EN
             </button>
             <button
+              type="button"
               onClick={() => setLanguage('fr')}
+              aria-label="Français"
               className={`px-2 py-0.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 language === 'fr'
                   ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs'
@@ -52,6 +56,7 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
 
           {/* Theme Toggle Button */}
           <button
+            type="button"
             onClick={() => setDarkMode((prev) => !prev)}
             aria-label={t('themeToggle')}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors cursor-pointer"

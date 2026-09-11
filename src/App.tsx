@@ -5,7 +5,7 @@ import { QRGenerator } from './components/QRGenerator';
 import { Features } from './components/Features';
 import { Footer } from './components/Footer';
 import { Download, X } from 'lucide-react';
-import { useTranslation } from './i18n/LanguageContext';
+import { useTranslation } from './i18n/useTranslation';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;

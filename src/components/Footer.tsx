@@ -1,6 +1,6 @@
 import React from 'react';
 import { QrCode } from 'lucide-react';
-import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 export const Footer: React.FC = () => {
   const { t } = useTranslation();

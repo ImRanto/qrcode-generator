@@ -1,6 +1,6 @@
 import React from 'react';
 import type { WifiData } from '../../utils/qrFormatters';
-import { useTranslation } from '../../i18n/LanguageContext';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface WifiFormProps {
   data: WifiData;
