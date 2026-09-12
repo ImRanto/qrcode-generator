@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { QrCode, Check, Copy } from 'lucide-react';
+import { QrCode, Check, Copy, CheckCircle2, AlertTriangle } from 'lucide-react';
 import type { QRSize } from './QRCustomization';
 import type { QRType } from '../utils/qrFormatters';
+import { analyzeQRParameters } from '../utils/contrastValidator';
 import { DownloadMenu } from './DownloadMenu';
 import { useTranslation } from '../i18n/useTranslation';
 
@@ -77,6 +78,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   };
 
   const hasQR = Boolean(qrText && qrText.trim().length > 0 && !genError);
+  const diagnostics = analyzeQRParameters(fgColor, bgColor, qrText || '');
 
   return (
     <div className="flex flex-col items-center justify-center h-full p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 shadow-xs transition-all">
@@ -93,8 +95,30 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             />
           </div>
 
+          {/* Visual Validation / Contrast Diagnostics Banner */}
+          <div className="mt-4 w-full max-w-sm space-y-2">
+            {diagnostics.isContrastOptimal ? (
+              <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 text-xs font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <span>{t('contrastOptimal')}</span>
+              </div>
+            ) : (
+              <div className="flex items-start gap-1.5 px-3 py-2 rounded-xl bg-amber-50/90 dark:bg-amber-950/50 border border-amber-200/80 dark:border-amber-800/70 text-amber-800 dark:text-amber-200 text-xs font-medium leading-tight">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <span>{t('contrastWeakWarning')}</span>
+              </div>
+            )}
+
+            {diagnostics.isPayloadTooLong && (
+              <div className="flex items-start gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium leading-tight">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-500 mt-0.5" />
+                <span>{t('payloadLengthWarning')}</span>
+              </div>
+            )}
+          </div>
+
           {/* Text/URL Preview */}
-          <div className="mt-5 w-full max-w-sm flex items-center justify-between px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60">
+          <div className="mt-3 w-full max-w-sm flex items-center justify-between px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60">
             <span className="text-xs font-mono text-slate-600 dark:text-slate-300 truncate mr-2">
               {qrText}
             </span>
