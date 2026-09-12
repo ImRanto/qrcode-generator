@@ -9,6 +9,9 @@ import { RecentQRCodes } from './RecentQRCodes';
 
 import { WebsiteForm } from './forms/WebsiteForm';
 import { TextForm } from './forms/TextForm';
+import { DynamicForm } from './forms/DynamicForm';
+import { createDynamicQr } from '../services/api/dynamicQrApi';
+import { Link2, Zap } from 'lucide-react';
 import { WifiForm } from './forms/WifiForm';
 import { EmailForm } from './forms/EmailForm';
 import { PhoneForm } from './forms/PhoneForm';
@@ -85,7 +88,13 @@ const INITIAL_LOCATION: LocationData = {
 
 export const QRGenerator: React.FC = () => {
   const { t } = useTranslation();
+  const [qrMode, setQrMode] = useState<'static' | 'dynamic'>('static');
   const [selectedType, setSelectedType] = useState<QRType>('website');
+
+  // Dynamic Form state
+  const [dynamicName, setDynamicName] = useState<string>('');
+  const [dynamicDestUrl, setDynamicDestUrl] = useState<string>('');
+  const [isSubmittingDynamic, setIsSubmittingDynamic] = useState<boolean>(false);
 
   // Form states
   const [websiteUrl, setWebsiteUrl] = useState<string>('');
@@ -110,6 +119,61 @@ export const QRGenerator: React.FC = () => {
   const handleSelectType = (type: QRType) => {
     setSelectedType(type);
     setErrorKey(null);
+  };
+
+  const handleGenerateDynamic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorKey(null);
+
+    if (!dynamicName.trim()) {
+      setErrorKey('errEmptyName');
+      return;
+    }
+
+    if (!dynamicDestUrl.trim() || !isValidUrl(dynamicDestUrl)) {
+      setErrorKey('errInvalidWebsite');
+      return;
+    }
+
+    setIsSubmittingDynamic(true);
+    try {
+      const res = await createDynamicQr({
+        name: dynamicName.trim(),
+        destinationUrl: dynamicDestUrl.trim(),
+      });
+
+      const dynamicQrUrl = res.qrUrl;
+      setQrText(dynamicQrUrl);
+
+      // Thumbnail generation & local history save
+      const dataUrl = await QRCode.toDataURL(dynamicQrUrl, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: fgColor,
+          light: bgColor,
+        },
+      });
+
+      const updatedHistory = saveToHistory({
+        type: 'website',
+        formData: dynamicDestUrl,
+        title: `Dynamic: ${res.name}`,
+        payload: dynamicQrUrl,
+        dataUrl,
+        foregroundColor: fgColor,
+        backgroundColor: bgColor,
+        size,
+        filename: `qr-dynamic-${res.publicId}`,
+      });
+
+      setHistoryList(updatedHistory);
+    } catch (err) {
+      console.error('Failed to create dynamic QR code:', err);
+      setErrorKey('errInvalidWebsite');
+    } finally {
+      setIsSubmittingDynamic(false);
+    }
   };
 
   const handleSelectTemplate = (template: QRTemplate) => {
@@ -377,52 +441,119 @@ export const QRGenerator: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Generator Form & Customization */}
         <div className="lg:col-span-7 space-y-6 bg-white dark:bg-slate-900/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
-          <QRTypeSelector
-            selectedType={selectedType}
-            onSelectType={handleSelectType}
-          />
-
-          <form onSubmit={handleGenerate} className="space-y-4 pt-2">
-            {selectedType === 'website' && (
-              <WebsiteForm url={websiteUrl} setUrl={setWebsiteUrl} />
-            )}
-            {selectedType === 'text' && (
-              <TextForm text={plainText} setText={setPlainText} />
-            )}
-            {selectedType === 'wifi' && (
-              <WifiForm data={wifiData} onChange={setWifiData} />
-            )}
-            {selectedType === 'email' && (
-              <EmailForm data={emailData} onChange={setEmailData} />
-            )}
-            {selectedType === 'phone' && (
-              <PhoneForm phone={phoneNum} setPhone={setPhoneNum} />
-            )}
-            {selectedType === 'sms' && (
-              <SmsForm data={smsData} onChange={setSmsData} />
-            )}
-            {selectedType === 'contact' && (
-              <ContactForm data={contactData} onChange={setContactData} />
-            )}
-            {selectedType === 'location' && (
-              <LocationForm data={locationData} onChange={setLocationData} />
-            )}
-
-            {errorKey && (
-              <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-red-600 dark:text-red-400">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>{t(errorKey as any)}</span>
-              </div>
-            )}
+          {/* Static vs Dynamic Mode Selector */}
+          <div className="flex items-center rounded-2xl bg-slate-100 dark:bg-slate-800/80 p-1.5 border border-slate-200/80 dark:border-slate-700/80">
+            <button
+              type="button"
+              onClick={() => {
+                setQrMode('static');
+                setErrorKey(null);
+              }}
+              aria-label={t('modeStatic')}
+              className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                qrMode === 'static'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Zap className="w-4 h-4 text-amber-500" />
+              <span>{t('modeStatic')}</span>
+            </button>
 
             <button
-              type="submit"
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.99] text-white dark:text-slate-900 font-medium text-sm shadow-xs transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20"
+              type="button"
+              onClick={() => {
+                setQrMode('dynamic');
+                setErrorKey(null);
+              }}
+              aria-label={t('modeDynamic')}
+              className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                qrMode === 'dynamic'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
             >
-              <Sparkles className="w-4 h-4" />
-              <span>{t('generateBtn')}</span>
+              <Link2 className="w-4 h-4 text-blue-500" />
+              <span>{t('modeDynamic')}</span>
             </button>
-          </form>
+          </div>
+
+          {qrMode === 'static' ? (
+            <>
+              <QRTypeSelector
+                selectedType={selectedType}
+                onSelectType={handleSelectType}
+              />
+
+              <form onSubmit={handleGenerate} className="space-y-4 pt-2">
+                {selectedType === 'website' && (
+                  <WebsiteForm url={websiteUrl} setUrl={setWebsiteUrl} />
+                )}
+                {selectedType === 'text' && (
+                  <TextForm text={plainText} setText={setPlainText} />
+                )}
+                {selectedType === 'wifi' && (
+                  <WifiForm data={wifiData} onChange={setWifiData} />
+                )}
+                {selectedType === 'email' && (
+                  <EmailForm data={emailData} onChange={setEmailData} />
+                )}
+                {selectedType === 'phone' && (
+                  <PhoneForm phone={phoneNum} setPhone={setPhoneNum} />
+                )}
+                {selectedType === 'sms' && (
+                  <SmsForm data={smsData} onChange={setSmsData} />
+                )}
+                {selectedType === 'contact' && (
+                  <ContactForm data={contactData} onChange={setContactData} />
+                )}
+                {selectedType === 'location' && (
+                  <LocationForm data={locationData} onChange={setLocationData} />
+                )}
+
+                {errorKey && (
+                  <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-red-600 dark:text-red-400">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{t(errorKey as any)}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.99] text-white dark:text-slate-900 font-medium text-sm shadow-xs transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{t('generateBtn')}</span>
+                </button>
+              </form>
+            </>
+          ) : (
+            /* Dynamic Mode Form */
+            <form onSubmit={handleGenerateDynamic} className="space-y-4 pt-2">
+              <DynamicForm
+                name={dynamicName}
+                setName={setDynamicName}
+                destinationUrl={dynamicDestUrl}
+                setDestinationUrl={setDynamicDestUrl}
+              />
+
+              {errorKey && (
+                <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-red-600 dark:text-red-400">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{t(errorKey as any)}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isSubmittingDynamic}
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-medium text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{t('createDynamicBtn')}</span>
+              </button>
+            </form>
+          )}
 
           <QRCustomization
             fgColor={fgColor}

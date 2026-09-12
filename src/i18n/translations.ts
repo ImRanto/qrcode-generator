@@ -102,6 +102,13 @@ export const translations = {
     locationLngPlaceholder: '2.2945',
 
     // Actions
+    modeStatic: 'Static QR',
+    modeDynamic: 'Dynamic QR',
+    dynamicNameLabel: 'QR Code Name',
+    dynamicNamePlaceholder: 'e.g. My Portfolio',
+    dynamicDestLabel: 'Destination URL',
+    createDynamicBtn: 'Create Dynamic QR Code',
+    errEmptyName: 'Please enter a name for your dynamic QR code.',
     generateBtn: 'Generate QR Code',
     copyBtn: 'Copy',
     shareBtn: 'Share',
@@ -287,6 +294,13 @@ export const translations = {
     locationLngPlaceholder: '2.2945',
 
     // Actions
+    modeStatic: 'QR Statique',
+    modeDynamic: 'QR Dynamique',
+    dynamicNameLabel: 'Nom du QR Code',
+    dynamicNamePlaceholder: 'ex: Mon Portfolio',
+    dynamicDestLabel: 'URL de destination',
+    createDynamicBtn: 'Créer le QR dynamique',
+    errEmptyName: 'Veuillez saisir un nom pour votre QR code dynamique.',
     generateBtn: 'Générer le QR Code',
     copyBtn: 'Copier',
     shareBtn: 'Partager',
