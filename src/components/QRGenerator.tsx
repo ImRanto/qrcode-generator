@@ -83,9 +83,11 @@ const INITIAL_LOCATION: LocationData = {
   longitude: '',
 };
 
+import { ArrowLeft } from 'lucide-react';
+
 export const QRGenerator: React.FC = () => {
   const { t } = useTranslation();
-  const [selectedType, setSelectedType] = useState<QRType>('website');
+  const [selectedType, setSelectedType] = useState<QRType | null>(null);
 
   // Form states
   const [websiteUrl, setWebsiteUrl] = useState<string>('');
@@ -144,6 +146,11 @@ export const QRGenerator: React.FC = () => {
           break;
       }
     }
+  };
+
+  const handleBackToTypeSelection = () => {
+    setSelectedType(null);
+    setErrorKey(null);
   };
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -270,35 +277,36 @@ export const QRGenerator: React.FC = () => {
 
     setQrText(payload);
 
-    // Generate base64 thumbnail and save to local history
-    try {
-      const dataUrl = await QRCode.toDataURL(payload, {
-        width: 200,
-        margin: 2,
-        color: {
-          dark: fgColor,
-          light: bgColor,
-        },
-      });
+    if (selectedType) {
+      try {
+        const dataUrl = await QRCode.toDataURL(payload, {
+          width: 200,
+          margin: 2,
+          color: {
+            dark: fgColor,
+            light: bgColor,
+          },
+        });
 
-      const filename = getSuggestedFilename(selectedType, formDataObj);
-      const title = filename.replace(/-/g, ' ');
+        const filename = getSuggestedFilename(selectedType, formDataObj);
+        const title = filename.replace(/-/g, ' ');
 
-      const updatedHistory = saveToHistory({
-        type: selectedType,
-        formData: formDataObj,
-        title,
-        payload,
-        dataUrl,
-        foregroundColor: fgColor,
-        backgroundColor: bgColor,
-        size,
-        filename,
-      });
+        const updatedHistory = saveToHistory({
+          type: selectedType,
+          formData: formDataObj,
+          title,
+          payload,
+          dataUrl,
+          foregroundColor: fgColor,
+          backgroundColor: bgColor,
+          size,
+          filename,
+        });
 
-      setHistoryList(updatedHistory);
-    } catch (err) {
-      console.error('Failed to create QR thumbnail for history', err);
+        setHistoryList(updatedHistory);
+      } catch (err) {
+        console.error('Failed to create QR thumbnail for history', err);
+      }
     }
   };
 
@@ -369,20 +377,63 @@ export const QRGenerator: React.FC = () => {
     setHistoryList(updated);
   };
 
+  // Step 1 View: Type & Preset Selection
+  if (!selectedType) {
+    return (
+      <section className="max-w-6xl mx-auto px-4 py-4 space-y-8 animate-fade-in">
+        {/* Main Header */}
+        <div className="text-center max-w-2xl mx-auto space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+            {t('createQrTitle')}
+          </h1>
+          <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+            {t('chooseShareSubtitle')}
+          </p>
+        </div>
+
+        {/* Centralized QR Types Categorized Cards */}
+        <div className="bg-white dark:bg-slate-900/60 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-8">
+          <QRTypeSelector onSelectType={handleSelectType} />
+          <QRTemplates onSelectTemplate={handleSelectTemplate} />
+        </div>
+
+        {/* Recent QR Codes History */}
+        <RecentQRCodes
+          history={historyList}
+          onReuse={handleReuseHistory}
+          onDelete={handleDeleteHistory}
+          onClearAll={handleClearHistory}
+        />
+      </section>
+    );
+  }
+
+  // Steps 2-5 View: Input, Live Preview, Customization & Export
   return (
-    <section className="max-w-6xl mx-auto px-4 py-4 space-y-6">
-      {/* Templates Quick Start Grid */}
-      <QRTemplates onSelectTemplate={handleSelectTemplate} />
+    <section className="max-w-6xl mx-auto px-4 py-4 space-y-6 animate-fade-in">
+      {/* Back button header */}
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={handleBackToTypeSelection}
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>{t('backToTypes')}</span>
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Generator Form & Customization */}
-        <div className="lg:col-span-7 space-y-6 bg-white dark:bg-slate-900/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+        {/* Left Column: Input Form & Progressive Customization */}
+        <div className="lg:col-span-7 space-y-6 bg-white dark:bg-slate-900/60 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+          {/* Compact type switcher bar */}
           <QRTypeSelector
             selectedType={selectedType}
             onSelectType={handleSelectType}
+            compact={true}
           />
 
-          <form onSubmit={handleGenerate} className="space-y-4 pt-2">
+          <form onSubmit={handleGenerate} className="space-y-4 pt-4 border-t border-slate-200/60 dark:border-slate-800/60">
             {selectedType === 'website' && (
               <WebsiteForm url={websiteUrl} setUrl={setWebsiteUrl} />
             )}
@@ -409,21 +460,22 @@ export const QRGenerator: React.FC = () => {
             )}
 
             {errorKey && (
-              <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-red-600 dark:text-red-400">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 p-3 rounded-xl border border-red-200 dark:border-red-900/50">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
                 <span>{t(errorKey as any)}</span>
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.99] text-white dark:text-slate-900 font-medium text-sm shadow-xs transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
             >
               <Sparkles className="w-4 h-4" />
               <span>{t('generateBtn')}</span>
             </button>
           </form>
 
+          {/* Customization Options */}
           <QRCustomization
             fgColor={fgColor}
             setFgColor={setFgColor}

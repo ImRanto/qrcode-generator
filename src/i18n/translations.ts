@@ -41,16 +41,35 @@ export const translations = {
     tplRestaurantTitle: 'Restaurant Menu',
     tplRestaurantDesc: 'Share your menu with one scan',
 
+    // Creation Flow & Titles
+    createQrTitle: 'Create your QR Code',
+    chooseShareSubtitle: 'Choose what you want to share.',
+    categoryContent: 'Links & content',
+    categoryCommunication: 'Communication',
+    categoryPractical: 'Practical',
+    needInspirationTitle: 'Need inspiration?',
+    needInspirationDesc: 'Quick shortcuts that pre-configure a QR code type',
+    backBtn: 'Back',
+    backToTypes: 'Change QR type',
+
     // Type Selector
     selectTypeLabel: 'WHAT DO YOU WANT TO CREATE?',
     typeWebsite: 'Website',
+    descWebsite: 'Share a link, URL or website',
     typeText: 'Text',
+    descText: 'Share plain text or a message',
     typeWifi: 'Wi-Fi',
+    descWifi: 'Share wireless network details',
     typeEmail: 'Email',
+    descEmail: 'Send pre-filled email messages',
     typePhone: 'Phone',
+    descPhone: 'Direct phone call dialing',
     typeSms: 'SMS',
+    descSms: 'Send pre-written text message',
     typeContact: 'Contact',
+    descContact: 'Share digital business card (vCard)',
     typeLocation: 'Location',
+    descLocation: 'Share location coordinates or map pin',
 
     // Forms
     websiteLabel: 'Text or URL',
@@ -226,16 +245,35 @@ export const translations = {
     tplRestaurantTitle: 'Menu de restaurant',
     tplRestaurantDesc: 'Partagez votre carte ou menu en un scan',
 
+    // Creation Flow & Titles
+    createQrTitle: 'Créez votre QR Code',
+    chooseShareSubtitle: 'Choisissez ce que vous souhaitez partager.',
+    categoryContent: 'Liens & contenu',
+    categoryCommunication: 'Communication',
+    categoryPractical: 'Pratique',
+    needInspirationTitle: 'Besoin d\'inspiration ?',
+    needInspirationDesc: 'Raccourcis qui configurent automatiquement un type de QR code',
+    backBtn: 'Retour',
+    backToTypes: 'Changer de type de QR',
+
     // Type Selector
     selectTypeLabel: 'QUE SOUHAITEZ-VOUS CRÉER ?',
     typeWebsite: 'Site Web',
-    typeText: 'Texte Libre',
+    descWebsite: 'Partager une URL ou un lien web',
+    typeText: 'Texte',
+    descText: 'Partager un texte brut ou un message',
     typeWifi: 'Wi-Fi',
+    descWifi: 'Partager un accès réseau sans fil',
     typeEmail: 'E-mail',
+    descEmail: 'Envoyer un message e-mail pré-rempli',
     typePhone: 'Téléphone',
+    descPhone: 'Lancer un appel téléphonique direct',
     typeSms: 'SMS',
-    typeContact: 'Contact (vCard)',
+    descSms: 'Envoyer un message SMS pré-rédigé',
+    typeContact: 'Contact',
+    descContact: 'Partager une carte de visite (vCard)',
     typeLocation: 'Localisation',
+    descLocation: 'Partager un itinéraire ou position GPS',
 
     // Forms
     websiteLabel: 'Texte ou URL',

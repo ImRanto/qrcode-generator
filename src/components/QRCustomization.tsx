@@ -55,7 +55,7 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* QR Color */}
         <div className="space-y-2">
-          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
             {t('qrColorLabel')}
           </label>
           <div className="flex items-center gap-2">
@@ -63,9 +63,9 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
               type="color"
               value={fgColor}
               onChange={(e) => setFgColor(e.target.value)}
-              className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer bg-transparent"
+              className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer bg-transparent transition-transform duration-150 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
             />
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {PRESET_COLORS.map((color) => (
                 <button
                   key={color}
@@ -73,10 +73,10 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
                   onClick={() => setFgColor(color)}
                   aria-label={`Select color ${color}`}
                   style={{ backgroundColor: color }}
-                  className={`w-5 h-5 rounded-full border transition-transform cursor-pointer ${
+                  className={`w-6 h-6 rounded-full border transition-all duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/50 ${
                     fgColor === color
-                      ? 'scale-110 border-slate-900 dark:border-white ring-2 ring-slate-900/20 dark:ring-white/20'
-                      : 'border-transparent hover:scale-105'
+                      ? 'scale-110 border-slate-900 dark:border-white ring-2 ring-indigo-500/50 shadow-xs'
+                      : 'border-slate-200/50 dark:border-slate-700/50 hover:scale-105 hover:opacity-90'
                   }`}
                 />
               ))}
