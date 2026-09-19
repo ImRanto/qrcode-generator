@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Sparkles, AlertCircle } from 'lucide-react';
-import { QRTemplates } from './QRTemplates';
 import { QRTypeSelector } from './QRTypeSelector';
 import { QRCustomization } from './QRCustomization';
 import type { QRSize } from './QRCustomization';
@@ -42,7 +41,6 @@ import {
 } from '../utils/qrFormatters';
 
 import type { HistoryItem } from '../types/history';
-import type { QRTemplate } from '../types/template';
 import { getHistory, saveToHistory, deleteFromHistory, clearHistory } from '../utils/historyStorage';
 import QRCode from 'qrcode';
 import { useTranslation } from '../i18n/useTranslation';
@@ -110,40 +108,6 @@ export const QRGenerator: React.FC = () => {
   const handleSelectType = (type: QRType) => {
     setSelectedType(type);
     setErrorKey(null);
-  };
-
-  const handleSelectTemplate = (template: QRTemplate) => {
-    setSelectedType(template.type);
-    setErrorKey(null);
-
-    if (template.defaultFormData !== undefined) {
-      switch (template.type) {
-        case 'website':
-          setWebsiteUrl(typeof template.defaultFormData === 'string' ? template.defaultFormData : '');
-          break;
-        case 'text':
-          setPlainText(typeof template.defaultFormData === 'string' ? template.defaultFormData : '');
-          break;
-        case 'wifi':
-          setWifiData(template.defaultFormData as WifiData);
-          break;
-        case 'email':
-          setEmailData(template.defaultFormData as EmailData);
-          break;
-        case 'phone':
-          setPhoneNum(typeof template.defaultFormData === 'string' ? template.defaultFormData : '');
-          break;
-        case 'sms':
-          setSmsData(template.defaultFormData as SmsData);
-          break;
-        case 'contact':
-          setContactData(template.defaultFormData as ContactData);
-          break;
-        case 'location':
-          setLocationData(template.defaultFormData as LocationData);
-          break;
-      }
-    }
   };
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -371,9 +335,6 @@ export const QRGenerator: React.FC = () => {
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-4 space-y-6">
-      {/* Templates Quick Start Grid */}
-      <QRTemplates onSelectTemplate={handleSelectTemplate} />
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Generator Form & Customization */}
         <div className="lg:col-span-7 space-y-6 bg-white dark:bg-slate-900/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
