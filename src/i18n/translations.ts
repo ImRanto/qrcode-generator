@@ -167,6 +167,30 @@ export const translations = {
     sizeLarge: 'Large',
     resetBtn: 'Reset',
 
+    // Logo & Safety
+    logoTitle: 'Logo / Image',
+    logoUploadDrag: 'Drag & drop image here or click to browse',
+    logoUploadBtn: 'Upload Logo',
+    removeLogo: 'Remove Logo',
+    logoSizeLabel: 'Logo Size',
+    logoPaddingLabel: 'Logo Padding',
+    logoBgLabel: 'Background behind logo',
+    logoBgColorLabel: 'Logo Background Color',
+    logoEcRecommendedAlert: 'Error correction automatically switched to High (H) to keep QR readable with logo.',
+    logoEcLowWarning: 'Warning: Low error correction (L/M) with a logo makes the QR code hard or impossible to scan. We strongly recommend setting Error Correction to High (H).',
+    logoSwitchToHBtn: 'Switch to High (H)',
+    logoSizeWarning: 'Warning: Logo is large. Ensure the QR code remains scannable.',
+
+    // Test QR Action
+    testQrBtn: 'Test QR Code',
+    testQrTitle: 'QR Code Decoding Test',
+    testQrSuccess: 'QR Code successfully decoded!',
+    testQrMatchText: 'Decoded Content:',
+    testQrFailed: 'Could not decode QR Code locally.',
+    testQrFailedReason: 'The QR code may be obscured by a large logo, lack contrast, or be too dense. Try setting Error Correction to H or reducing logo size.',
+    testQrDisclaimer: 'Notice: Successful local decoding does not guarantee 100% readability on all physical camera devices and scanning apps under all lighting conditions.',
+    closeBtn: 'Close',
+
     // Preview & Contrast Validation
     emptyStateTitle: 'Your QR code will appear here',
     emptyStateSubtitle: 'Enter some text or a URL to generate your QR code.',
@@ -384,6 +408,30 @@ export const translations = {
     sizeMedium: 'Moyenne',
     sizeLarge: 'Grande',
     resetBtn: 'Réinitialiser',
+
+    // Logo & Safety
+    logoTitle: 'Logo / Image',
+    logoUploadDrag: 'Glissez-déposez une image ici ou cliquez pour parcourir',
+    logoUploadBtn: 'Ajouter un logo',
+    removeLogo: 'Supprimer le logo',
+    logoSizeLabel: 'Taille du logo',
+    logoPaddingLabel: 'Padding du logo',
+    logoBgLabel: 'Fond derrière le logo',
+    logoBgColorLabel: 'Couleur du fond du logo',
+    logoEcRecommendedAlert: 'Correction d\'erreur basculée sur Élevé (H) pour garantir la lisibilité avec le logo.',
+    logoEcLowWarning: 'Attention : Avec un logo et une correction faible (L/M), le QR risquera d\'être difficile ou impossible à scanner. Nous recommandons vivement le niveau Élevé (H).',
+    logoSwitchToHBtn: 'Passer en niveau H',
+    logoSizeWarning: 'Attention : Le logo est grand. Assurez-vous que le QR demeure scannable.',
+
+    // Test QR Action
+    testQrBtn: 'Tester le QR',
+    testQrTitle: 'Test de décodage du QR Code',
+    testQrSuccess: 'QR Code décodé avec succès !',
+    testQrMatchText: 'Contenu décodé :',
+    testQrFailed: 'Impossible de décoder le QR Code localement.',
+    testQrFailedReason: 'Le QR code est peut-être masqué par un grand logo, manque de contraste ou est trop dense. Essayez d\'augmenter la correction d\'erreur (H) ou de réduire la taille du logo.',
+    testQrDisclaimer: 'Remarque : Le succès du test local ne garantit jamais à 100% que tous les appareils photo et applications physiques pourront lire le QR code dans toutes les conditions d\'éclairage.',
+    closeBtn: 'Fermer',
 
     // Preview & Contrast Validation
     emptyStateTitle: 'Votre QR code apparaîtra ici',

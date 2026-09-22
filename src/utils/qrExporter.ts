@@ -53,6 +53,11 @@ export const getQRPngFile = async (
     margin: designOptions?.margin ?? 2,
     gradientType: designOptions?.gradientType || 'none',
     gradientColor: designOptions?.gradientColor || '#2563EB',
+    logoUrl: designOptions?.logoUrl,
+    logoSize: designOptions?.logoSize,
+    logoPadding: designOptions?.logoPadding,
+    logoHasBg: designOptions?.logoHasBg,
+    logoBgColor: designOptions?.logoBgColor,
     width: 1024,
   });
 
@@ -90,6 +95,11 @@ export const exportPNG = async (
       margin: designOptions?.margin ?? 2,
       gradientType: designOptions?.gradientType || 'none',
       gradientColor: designOptions?.gradientColor || '#2563EB',
+      logoUrl: designOptions?.logoUrl,
+      logoSize: designOptions?.logoSize,
+      logoPadding: designOptions?.logoPadding,
+      logoHasBg: designOptions?.logoHasBg,
+      logoBgColor: designOptions?.logoBgColor,
       width: 1024,
     });
 
@@ -127,6 +137,11 @@ export const exportSVG = async (
       margin: designOptions?.margin ?? 2,
       gradientType: designOptions?.gradientType || 'none',
       gradientColor: designOptions?.gradientColor || '#2563EB',
+      logoUrl: designOptions?.logoUrl,
+      logoSize: designOptions?.logoSize,
+      logoPadding: designOptions?.logoPadding,
+      logoHasBg: designOptions?.logoHasBg,
+      logoBgColor: designOptions?.logoBgColor,
       width: 800,
     });
 
@@ -170,6 +185,11 @@ export const exportPDF = async (
       margin: designOptions?.margin ?? 2,
       gradientType: designOptions?.gradientType || 'none',
       gradientColor: designOptions?.gradientColor || '#2563EB',
+      logoUrl: designOptions?.logoUrl,
+      logoSize: designOptions?.logoSize,
+      logoPadding: designOptions?.logoPadding,
+      logoHasBg: designOptions?.logoHasBg,
+      logoBgColor: designOptions?.logoBgColor,
       width: 800,
     });
 
