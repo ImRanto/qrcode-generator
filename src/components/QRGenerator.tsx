@@ -2,7 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { Sparkles, AlertCircle, FileText, Palette, CheckCircle2, Download } from 'lucide-react';
 import { QRTypeSelector } from './QRTypeSelector';
 import { QRCustomization } from './QRCustomization';
-import type { QRSize } from './QRCustomization';
+import type { QRSize, QRDesignOptions } from './QRCustomization';
+import { drawCustomQRToCanvas } from '../utils/qrCustomRenderer';
 import { QRPreview } from './QRPreview';
 import { RecentQRCodes } from './RecentQRCodes';
 
@@ -42,13 +43,26 @@ import {
 
 import type { HistoryItem } from '../types/history';
 import { getHistory, saveToHistory, deleteFromHistory, clearHistory } from '../utils/historyStorage';
-import QRCode from 'qrcode';
 import { useTranslation } from '../i18n/useTranslation';
 import type { TranslationKeys } from '../i18n/translations';
 
 const DEFAULT_FG = '#111827';
 const DEFAULT_BG = '#FFFFFF';
 const DEFAULT_SIZE: QRSize = 'Medium';
+
+const DEFAULT_DESIGN: QRDesignOptions = {
+  fgColor: DEFAULT_FG,
+  bgColor: DEFAULT_BG,
+  transparentBg: false,
+  eyeColor: DEFAULT_FG,
+  useCustomEyeColor: false,
+  moduleStyle: 'square',
+  eyeStyle: 'square',
+  errorCorrectionLevel: 'M',
+  margin: 2,
+  gradientType: 'none',
+  gradientColor: '#2563EB',
+};
 
 const INITIAL_WIFI: WifiData = {
   ssid: '',
@@ -102,6 +116,7 @@ export const QRGenerator: React.FC = () => {
   const [fgColor, setFgColor] = useState<string>(DEFAULT_FG);
   const [bgColor, setBgColor] = useState<string>(DEFAULT_BG);
   const [size, setSize] = useState<QRSize>(DEFAULT_SIZE);
+  const [designOptions, setDesignOptions] = useState<QRDesignOptions>(DEFAULT_DESIGN);
 
   // Local History State
   const [historyList, setHistoryList] = useState<HistoryItem[]>(() => getHistory());
@@ -194,14 +209,14 @@ export const QRGenerator: React.FC = () => {
 
     // Save to local history when explicitly submitted
     try {
-      const dataUrl = await QRCode.toDataURL(payload, {
+      const thumbCanvas = document.createElement('canvas');
+      await drawCustomQRToCanvas(thumbCanvas, payload, {
+        ...designOptions,
+        fgColor,
+        bgColor,
         width: 200,
-        margin: 2,
-        color: {
-          dark: fgColor,
-          light: bgColor,
-        },
       });
+      const dataUrl = thumbCanvas.toDataURL('image/png');
 
       const filename = getSuggestedFilename(selectedType, formData);
       const title = filename.replace(/-/g, ' ');
@@ -216,6 +231,7 @@ export const QRGenerator: React.FC = () => {
         backgroundColor: bgColor,
         size,
         filename,
+        designOptions,
       });
 
       setHistoryList(updatedHistory);
@@ -239,6 +255,7 @@ export const QRGenerator: React.FC = () => {
     setFgColor(DEFAULT_FG);
     setBgColor(DEFAULT_BG);
     setSize(DEFAULT_SIZE);
+    setDesignOptions(DEFAULT_DESIGN);
   };
 
   const handleReuseHistory = (item: HistoryItem) => {
@@ -246,6 +263,9 @@ export const QRGenerator: React.FC = () => {
     setFgColor(item.foregroundColor);
     setBgColor(item.backgroundColor);
     setSize(item.size);
+    if (item.designOptions) {
+      setDesignOptions(item.designOptions);
+    }
     setQrText(item.payload);
     setErrorKey(null);
 
@@ -399,6 +419,8 @@ export const QRGenerator: React.FC = () => {
             setBgColor={setBgColor}
             size={size}
             setSize={setSize}
+            designOptions={designOptions}
+            setDesignOptions={setDesignOptions}
             onReset={handleReset}
           />
         </div>
@@ -411,6 +433,7 @@ export const QRGenerator: React.FC = () => {
             bgColor={bgColor}
             size={size}
             selectedType={selectedType}
+            designOptions={designOptions}
           />
 
           <RecentQRCodes

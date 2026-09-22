@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Download, Check, Copy, Share2 } from 'lucide-react';
 import type { QRType } from '../utils/qrFormatters';
+import type { QRDesignOptions } from './QRCustomization';
 import { exportPNG, exportSVG, exportPDF, sanitizeFilename, getQRPngFile } from '../utils/qrExporter';
 import { useTranslation } from '../i18n/useTranslation';
 
@@ -10,6 +11,7 @@ interface DownloadMenuProps {
   bgColor: string;
   selectedType?: QRType;
   disabled?: boolean;
+  designOptions?: Partial<QRDesignOptions>;
 }
 
 type ExportFormat = 'png' | 'svg' | 'pdf';
@@ -20,6 +22,7 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
   bgColor,
   selectedType,
   disabled = false,
+  designOptions,
 }) => {
   const { t } = useTranslation();
   const [rawFilename, setRawFilename] = useState('mon-qr-code');
@@ -56,7 +59,7 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
       if (navigator.share) {
         let fileToShare: File | null = null;
         try {
-          fileToShare = await getQRPngFile(qrText, fgColor, bgColor, rawFilename);
+          fileToShare = await getQRPngFile(qrText, fgColor, bgColor, rawFilename, designOptions);
         } catch {
           fileToShare = null;
         }
@@ -92,11 +95,11 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
 
     try {
       if (selectedFormat === 'png') {
-        await exportPNG(qrText, fgColor, bgColor, rawFilename);
+        await exportPNG(qrText, fgColor, bgColor, rawFilename, designOptions);
       } else if (selectedFormat === 'svg') {
-        await exportSVG(qrText, fgColor, bgColor, rawFilename);
+        await exportSVG(qrText, fgColor, bgColor, rawFilename, designOptions);
       } else if (selectedFormat === 'pdf') {
-        await exportPDF(qrText, fgColor, bgColor, selectedType, rawFilename);
+        await exportPDF(qrText, fgColor, bgColor, selectedType, rawFilename, designOptions);
       }
 
       setDownloadSuccess(true);
