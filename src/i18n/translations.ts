@@ -41,6 +41,13 @@ export const translations = {
     tplRestaurantTitle: 'Restaurant Menu',
     tplRestaurantDesc: 'Share your menu with one scan',
 
+    // Workflow Steps
+    stepContent: '1. Content',
+    stepDesign: '2. Design',
+    stepVerification: '3. Verification',
+    stepExport: '4. Export',
+    livePreviewBadge: 'Live Real-Time Preview',
+
     // Type Selector
     selectTypeLabel: 'WHAT DO YOU WANT TO CREATE?',
     typeWebsite: 'Website',
@@ -225,6 +232,13 @@ export const translations = {
     tplSocialDesc: 'Rédirigez vers vos profils sociaux',
     tplRestaurantTitle: 'Menu de restaurant',
     tplRestaurantDesc: 'Partagez votre carte ou menu en un scan',
+
+    // Workflow Steps
+    stepContent: '1. Contenu',
+    stepDesign: '2. Design',
+    stepVerification: '3. Vérification',
+    stepExport: '4. Export',
+    livePreviewBadge: 'Aperçu en temps réel',
 
     // Type Selector
     selectTypeLabel: 'QUE SOUHAITEZ-VOUS CRÉER ?',

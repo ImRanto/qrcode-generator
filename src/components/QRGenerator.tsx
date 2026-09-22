@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Sparkles, AlertCircle } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { Sparkles, AlertCircle, FileText, Palette, CheckCircle2, Download } from 'lucide-react';
 import { QRTypeSelector } from './QRTypeSelector';
 import { QRCustomization } from './QRCustomization';
 import type { QRSize } from './QRCustomization';
@@ -111,131 +111,88 @@ export const QRGenerator: React.FC = () => {
     setErrorKey(null);
   };
 
-  const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorKey(null);
-
-    let payload = '';
-    let formDataObj: QRFormData = websiteUrl;
-
+  // Process form input & construct payload
+  const computePayloadAndFormData = useCallback((): { payload: string; formData: QRFormData; err: TranslationKeys | null } => {
     switch (selectedType) {
       case 'website': {
-        if (!websiteUrl.trim()) {
-          setErrorKey('errEmptyWebsite');
-          setQrText('');
-          return;
-        }
-        if (!isValidUrl(websiteUrl)) {
-          setErrorKey('errInvalidWebsite');
-          setQrText('');
-          return;
-        }
-        payload = formatWebsitePayload(websiteUrl);
-        formDataObj = websiteUrl;
-        break;
+        if (!websiteUrl.trim()) return { payload: '', formData: websiteUrl, err: null };
+        if (!isValidUrl(websiteUrl)) return { payload: '', formData: websiteUrl, err: 'errInvalidWebsite' };
+        return { payload: formatWebsitePayload(websiteUrl), formData: websiteUrl, err: null };
       }
       case 'text': {
-        if (!plainText.trim()) {
-          setErrorKey('errEmptyText');
-          setQrText('');
-          return;
-        }
-        payload = plainText.trim();
-        formDataObj = plainText;
-        break;
+        if (!plainText.trim()) return { payload: '', formData: plainText, err: null };
+        return { payload: plainText.trim(), formData: plainText, err: null };
       }
       case 'wifi': {
-        if (!wifiData.ssid.trim()) {
-          setErrorKey('errEmptySsid');
-          setQrText('');
-          return;
-        }
-        if (wifiData.security !== 'nopass' && !wifiData.password) {
-          setErrorKey('errEmptyWifiPass');
-          setQrText('');
-          return;
-        }
-        payload = formatWifiPayload(wifiData);
-        formDataObj = wifiData;
-        break;
+        if (!wifiData.ssid.trim()) return { payload: '', formData: wifiData, err: null };
+        if (wifiData.security !== 'nopass' && !wifiData.password) return { payload: '', formData: wifiData, err: 'errEmptyWifiPass' };
+        return { payload: formatWifiPayload(wifiData), formData: wifiData, err: null };
       }
       case 'email': {
-        if (!emailData.email.trim()) {
-          setErrorKey('errEmptyEmail');
-          setQrText('');
-          return;
-        }
-        if (!isValidEmail(emailData.email)) {
-          setErrorKey('errInvalidEmail');
-          setQrText('');
-          return;
-        }
-        payload = formatEmailPayload(emailData);
-        formDataObj = emailData;
-        break;
+        if (!emailData.email.trim()) return { payload: '', formData: emailData, err: null };
+        if (!isValidEmail(emailData.email)) return { payload: '', formData: emailData, err: 'errInvalidEmail' };
+        return { payload: formatEmailPayload(emailData), formData: emailData, err: null };
       }
       case 'phone': {
-        if (!phoneNum.trim()) {
-          setErrorKey('errEmptyPhone');
-          setQrText('');
-          return;
-        }
-        payload = formatPhonePayload(phoneNum);
-        formDataObj = phoneNum;
-        break;
+        if (!phoneNum.trim()) return { payload: '', formData: phoneNum, err: null };
+        return { payload: formatPhonePayload(phoneNum), formData: phoneNum, err: null };
       }
       case 'sms': {
-        if (!smsData.phone.trim()) {
-          setErrorKey('errEmptyPhone');
-          setQrText('');
-          return;
-        }
-        payload = formatSmsPayload(smsData);
-        formDataObj = smsData;
-        break;
+        if (!smsData.phone.trim()) return { payload: '', formData: smsData, err: null };
+        return { payload: formatSmsPayload(smsData), formData: smsData, err: null };
       }
       case 'contact': {
         const hasName = Boolean(contactData.firstName.trim() || contactData.lastName.trim());
         const hasInfo = Boolean(contactData.phone.trim() || contactData.email.trim() || contactData.organization.trim());
-        if (!hasName && !hasInfo) {
-          setErrorKey('errEmptyContact');
-          setQrText('');
-          return;
-        }
-        if (contactData.email.trim() && !isValidEmail(contactData.email)) {
-          setErrorKey('errInvalidContactEmail');
-          setQrText('');
-          return;
-        }
-        payload = formatContactPayload(contactData);
-        formDataObj = contactData;
-        break;
+        if (!hasName && !hasInfo) return { payload: '', formData: contactData, err: null };
+        if (contactData.email.trim() && !isValidEmail(contactData.email)) return { payload: '', formData: contactData, err: 'errInvalidContactEmail' };
+        return { payload: formatContactPayload(contactData), formData: contactData, err: null };
       }
       case 'location': {
-        if (!locationData.latitude.trim() || !locationData.longitude.trim()) {
-          setErrorKey('errEmptyLocation');
-          setQrText('');
-          return;
-        }
-        if (!isValidLatitude(locationData.latitude)) {
-          setErrorKey('errInvalidLat');
-          setQrText('');
-          return;
-        }
-        if (!isValidLongitude(locationData.longitude)) {
-          setErrorKey('errInvalidLng');
-          setQrText('');
-          return;
-        }
-        payload = formatLocationPayload(locationData);
-        formDataObj = locationData;
-        break;
+        if (!locationData.latitude.trim() || !locationData.longitude.trim()) return { payload: '', formData: locationData, err: null };
+        if (!isValidLatitude(locationData.latitude)) return { payload: '', formData: locationData, err: 'errInvalidLat' };
+        if (!isValidLongitude(locationData.longitude)) return { payload: '', formData: locationData, err: 'errInvalidLng' };
+        return { payload: formatLocationPayload(locationData), formData: locationData, err: null };
       }
+      default:
+        return { payload: '', formData: '', err: null };
+    }
+  }, [selectedType, websiteUrl, plainText, wifiData, emailData, phoneNum, smsData, contactData, locationData]);
+
+  // Compute real-time payload and error from form inputs
+  const { payload: derivedPayload, err: derivedErr } = computePayloadAndFormData();
+  const activeQrText = qrText || derivedPayload;
+  const activeErrorKey = errorKey || derivedErr;
+
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { payload, formData, err } = computePayloadAndFormData();
+
+    if (!payload && !err) {
+      // Input was completely empty
+      switch (selectedType) {
+        case 'website': setErrorKey('errEmptyWebsite'); break;
+        case 'text': setErrorKey('errEmptyText'); break;
+        case 'wifi': setErrorKey('errEmptySsid'); break;
+        case 'email': setErrorKey('errEmptyEmail'); break;
+        case 'phone': setErrorKey('errEmptyPhone'); break;
+        case 'sms': setErrorKey('errEmptyPhone'); break;
+        case 'contact': setErrorKey('errEmptyContact'); break;
+        case 'location': setErrorKey('errEmptyLocation'); break;
+      }
+      setQrText('');
+      return;
+    }
+
+    if (err) {
+      setErrorKey(err);
+      setQrText('');
+      return;
     }
 
     setQrText(payload);
 
-    // Generate base64 thumbnail and save to local history
+    // Save to local history when explicitly submitted
     try {
       const dataUrl = await QRCode.toDataURL(payload, {
         width: 200,
@@ -246,12 +203,12 @@ export const QRGenerator: React.FC = () => {
         },
       });
 
-      const filename = getSuggestedFilename(selectedType, formDataObj);
+      const filename = getSuggestedFilename(selectedType, formData);
       const title = filename.replace(/-/g, ' ');
 
       const updatedHistory = saveToHistory({
         type: selectedType,
-        formData: formDataObj,
+        formData,
         title,
         payload,
         dataUrl,
@@ -262,8 +219,8 @@ export const QRGenerator: React.FC = () => {
       });
 
       setHistoryList(updatedHistory);
-    } catch (err) {
-      console.error('Failed to create QR thumbnail for history', err);
+    } catch (historyErr) {
+      console.error('Failed to save to history:', historyErr);
     }
   };
 
@@ -334,8 +291,57 @@ export const QRGenerator: React.FC = () => {
     setHistoryList(updated);
   };
 
+  const currentStep = qrText ? 4 : (websiteUrl || plainText || wifiData.ssid || emailData.email || phoneNum || smsData.phone || contactData.firstName || locationData.latitude) ? 2 : 1;
+
+  const steps = [
+    { num: 1, key: 'stepContent' as const, icon: FileText },
+    { num: 2, key: 'stepDesign' as const, icon: Palette },
+    { num: 3, key: 'stepVerification' as const, icon: CheckCircle2 },
+    { num: 4, key: 'stepExport' as const, icon: Download },
+  ];
+
   return (
     <section className="max-w-6xl mx-auto px-4 py-4 space-y-6">
+      {/* Visual Workflow Steps Bar */}
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-4 shadow-2xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {steps.map((s) => {
+            const Icon = s.icon;
+            const isCompleted = currentStep > s.num;
+            const isActive = currentStep === s.num || (s.num === 3 && currentStep === 4);
+
+            return (
+              <div
+                key={s.num}
+                className={`flex items-center gap-2.5 p-2.5 rounded-xl border transition-all ${
+                  isActive
+                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-slate-900 dark:border-slate-100 shadow-2xs font-semibold'
+                    : isCompleted
+                    ? 'bg-slate-100/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                    : 'bg-slate-50/50 dark:bg-slate-900/30 text-slate-400 dark:text-slate-600 border-slate-200/60 dark:border-slate-800/60'
+                }`}
+              >
+                <div
+                  className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
+                    isActive
+                      ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900'
+                      : isCompleted
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                  }`}
+                >
+                  {isCompleted ? '✓' : s.num}
+                </div>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="text-xs truncate font-medium">{t(s.key)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Generator Form & Customization */}
         <div className="lg:col-span-7 space-y-6 bg-white dark:bg-slate-900/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
@@ -370,10 +376,10 @@ export const QRGenerator: React.FC = () => {
               <LocationForm data={locationData} onChange={setLocationData} />
             )}
 
-            {errorKey && (
+            {activeErrorKey && (
               <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-red-600 dark:text-red-400">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>{t(errorKey)}</span>
+                <span>{t(activeErrorKey)}</span>
               </div>
             )}
 
@@ -400,7 +406,7 @@ export const QRGenerator: React.FC = () => {
         {/* Right Column: Preview & History */}
         <div className="lg:col-span-5 space-y-6">
           <QRPreview
-            qrText={qrText}
+            qrText={activeQrText}
             fgColor={fgColor}
             bgColor={bgColor}
             size={size}

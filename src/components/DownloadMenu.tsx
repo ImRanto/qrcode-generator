@@ -109,7 +109,16 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
   };
 
   return (
-    <div className="w-full max-w-sm mt-5 space-y-4">
+    <div className="w-full max-w-sm mt-5 space-y-4 pt-4 border-t border-slate-200/80 dark:border-slate-800/80">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          {t('exportMenuTitle')}
+        </span>
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300">
+          {t('stepExport')}
+        </span>
+      </div>
+
       {/* Quick Actions Bar [ Copy ] [ Share ] [ Download ] */}
       <div className="grid grid-cols-3 gap-2">
         <button

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { QrCode, Check, Copy, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { QrCode, Check, Copy, CheckCircle2, AlertTriangle, Sparkles } from 'lucide-react';
 import type { QRSize } from './QRCustomization';
 import type { QRType } from '../utils/qrFormatters';
 import { analyzeQRParameters } from '../utils/contrastValidator';
@@ -81,7 +81,20 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   const diagnostics = analyzeQRParameters(fgColor, bgColor, qrText || '');
 
   return (
-    <div className="flex flex-col items-center justify-center h-full p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 shadow-xs transition-all">
+    <div className="flex flex-col items-center justify-center h-full p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 shadow-xs transition-all relative">
+      {/* Real-Time Live Preview Header Badge */}
+      <div className="w-full flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/80 text-xs">
+        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+          <span>{t('livePreviewBadge')}</span>
+        </div>
+        {hasQR && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
+            {t('stepVerification')}
+          </span>
+        )}
+      </div>
+
       {hasQR ? (
         <div className="flex flex-col items-center w-full animate-fadeIn">
           {/* QR Code Container with quiet zone padding */}
