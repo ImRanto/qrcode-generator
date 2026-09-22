@@ -188,6 +188,7 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
               type="button"
               onClick={() => setSelectedFormat(fmt)}
               aria-label={`Select format ${fmt.toUpperCase()}`}
+              aria-pressed={selectedFormat === fmt}
               className={`py-1.5 text-xs font-semibold uppercase rounded-lg border transition-all cursor-pointer ${
                 selectedFormat === fmt
                   ? 'border-slate-900 dark:border-white bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'

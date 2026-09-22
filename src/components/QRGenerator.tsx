@@ -44,6 +44,7 @@ import type { HistoryItem } from '../types/history';
 import { getHistory, saveToHistory, deleteFromHistory, clearHistory } from '../utils/historyStorage';
 import QRCode from 'qrcode';
 import { useTranslation } from '../i18n/useTranslation';
+import type { TranslationKeys } from '../i18n/translations';
 
 const DEFAULT_FG = '#111827';
 const DEFAULT_BG = '#FFFFFF';
@@ -97,7 +98,7 @@ export const QRGenerator: React.FC = () => {
 
   // QR Output & Options
   const [qrText, setQrText] = useState<string>('');
-  const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<TranslationKeys | null>(null);
   const [fgColor, setFgColor] = useState<string>(DEFAULT_FG);
   const [bgColor, setBgColor] = useState<string>(DEFAULT_BG);
   const [size, setSize] = useState<QRSize>(DEFAULT_SIZE);
@@ -372,7 +373,7 @@ export const QRGenerator: React.FC = () => {
             {errorKey && (
               <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-red-600 dark:text-red-400">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>{t(errorKey as any)}</span>
+                <span>{t(errorKey)}</span>
               </div>
             )}
 

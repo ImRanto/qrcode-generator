@@ -1,6 +1,7 @@
 import React from 'react';
 import { Palette, RefreshCw } from 'lucide-react';
 import { useTranslation } from '../i18n/useTranslation';
+import type { TranslationKeys } from '../i18n/translations';
 
 export type QRSize = 'Small' | 'Medium' | 'Large';
 
@@ -63,6 +64,7 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
               type="color"
               value={fgColor}
               onChange={(e) => setFgColor(e.target.value)}
+              aria-label={t('qrColorLabel')}
               className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer bg-transparent"
             />
             <div className="flex items-center gap-1">
@@ -94,6 +96,7 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
               type="color"
               value={bgColor}
               onChange={(e) => setBgColor(e.target.value)}
+              aria-label={t('bgColorLabel')}
               className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer bg-transparent"
             />
             <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">
@@ -109,19 +112,20 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
           </label>
           <div className="flex items-center rounded-xl bg-slate-100 dark:bg-slate-800/80 p-1 border border-slate-200/80 dark:border-slate-700/80">
             {(['Small', 'Medium', 'Large'] as QRSize[]).map((s) => {
-              const labelKey = s === 'Small' ? 'sizeSmall' : s === 'Medium' ? 'sizeMedium' : 'sizeLarge';
+              const labelKey: TranslationKeys = s === 'Small' ? 'sizeSmall' : s === 'Medium' ? 'sizeMedium' : 'sizeLarge';
               return (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setSize(s)}
+                  aria-pressed={size === s}
                   className={`flex-1 py-1 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                     size === s
                       ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  {t(labelKey as any)}
+                  {t(labelKey)}
                 </button>
               );
             })}

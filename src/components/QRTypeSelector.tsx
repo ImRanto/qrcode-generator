@@ -11,6 +11,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { useTranslation } from '../i18n/useTranslation';
+import type { TranslationKeys } from '../i18n/translations';
 
 interface QRTypeSelectorProps {
   selectedType: QRType;
@@ -23,7 +24,7 @@ export const QRTypeSelector: React.FC<QRTypeSelectorProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const types: { id: QRType; labelKey: any; icon: React.ReactNode }[] = [
+  const types: { id: QRType; labelKey: TranslationKeys; icon: React.ReactNode }[] = [
     { id: 'website', labelKey: 'typeWebsite', icon: <Globe className="w-3.5 h-3.5" /> },
     { id: 'text', labelKey: 'typeText', icon: <FileText className="w-3.5 h-3.5" /> },
     { id: 'wifi', labelKey: 'typeWifi', icon: <Wifi className="w-3.5 h-3.5" /> },
@@ -47,6 +48,7 @@ export const QRTypeSelector: React.FC<QRTypeSelectorProps> = ({
               key={type.id}
               type="button"
               onClick={() => onSelectType(type.id)}
+              aria-pressed={isSelected}
               className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
                 isSelected
                   ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-slate-900 dark:border-slate-100 shadow-2xs font-semibold'
