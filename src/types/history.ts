@@ -1,5 +1,5 @@
 import type { QRType, QRFormData } from '../utils/qrFormatters';
-import type { QRSize } from '../components/QRCustomization';
+import type { QRSize, QRDesignOptions } from '../components/QRCustomization';
 
 export interface HistoryItem {
   id: string;
@@ -13,4 +13,5 @@ export interface HistoryItem {
   size: QRSize;
   filename: string;
   createdAt: number;
+  designOptions?: QRDesignOptions;
 }

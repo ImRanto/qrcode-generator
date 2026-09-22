@@ -1,6 +1,7 @@
-import QRCode from 'qrcode';
 import { jsPDF } from 'jspdf';
 import type { QRType } from './qrFormatters';
+import type { QRDesignOptions } from '../components/QRCustomization';
+import { drawCustomQRToCanvas, generateCustomQRSVG } from './qrCustomRenderer';
 
 export const sanitizeFilename = (
   rawInput: string,
@@ -35,18 +36,24 @@ export const getQRPngFile = async (
   qrText: string,
   fgColor: string,
   bgColor: string,
-  rawFilename = 'mon-qr-code'
+  rawFilename = 'mon-qr-code',
+  designOptions?: Partial<QRDesignOptions>
 ): Promise<File> => {
   const filename = sanitizeFilename(rawFilename, 'png');
   const canvas = document.createElement('canvas');
-  await QRCode.toCanvas(canvas, qrText, {
+  await drawCustomQRToCanvas(canvas, qrText, {
+    fgColor,
+    bgColor,
+    transparentBg: designOptions?.transparentBg || false,
+    eyeColor: designOptions?.eyeColor || fgColor,
+    useCustomEyeColor: designOptions?.useCustomEyeColor || false,
+    moduleStyle: designOptions?.moduleStyle || 'square',
+    eyeStyle: designOptions?.eyeStyle || 'square',
+    errorCorrectionLevel: designOptions?.errorCorrectionLevel || 'M',
+    margin: designOptions?.margin ?? 2,
+    gradientType: designOptions?.gradientType || 'none',
+    gradientColor: designOptions?.gradientColor || '#2563EB',
     width: 1024,
-    margin: 2,
-    color: {
-      dark: fgColor,
-      light: bgColor,
-    },
-    errorCorrectionLevel: 'M',
   });
 
   return new Promise((resolve, reject) => {
@@ -65,19 +72,25 @@ export const exportPNG = async (
   qrText: string,
   fgColor: string,
   bgColor: string,
-  rawFilename = 'mon-qr-code'
+  rawFilename = 'mon-qr-code',
+  designOptions?: Partial<QRDesignOptions>
 ): Promise<void> => {
   try {
     const filename = sanitizeFilename(rawFilename, 'png');
     const canvas = document.createElement('canvas');
-    await QRCode.toCanvas(canvas, qrText, {
+    await drawCustomQRToCanvas(canvas, qrText, {
+      fgColor,
+      bgColor,
+      transparentBg: designOptions?.transparentBg || false,
+      eyeColor: designOptions?.eyeColor || fgColor,
+      useCustomEyeColor: designOptions?.useCustomEyeColor || false,
+      moduleStyle: designOptions?.moduleStyle || 'square',
+      eyeStyle: designOptions?.eyeStyle || 'square',
+      errorCorrectionLevel: designOptions?.errorCorrectionLevel || 'M',
+      margin: designOptions?.margin ?? 2,
+      gradientType: designOptions?.gradientType || 'none',
+      gradientColor: designOptions?.gradientColor || '#2563EB',
       width: 1024,
-      margin: 2,
-      color: {
-        dark: fgColor,
-        light: bgColor,
-      },
-      errorCorrectionLevel: 'M',
     });
 
     const dataUrl = canvas.toDataURL('image/png');
@@ -97,18 +110,24 @@ export const exportSVG = async (
   qrText: string,
   fgColor: string,
   bgColor: string,
-  rawFilename = 'mon-qr-code'
+  rawFilename = 'mon-qr-code',
+  designOptions?: Partial<QRDesignOptions>
 ): Promise<void> => {
   try {
     const filename = sanitizeFilename(rawFilename, 'svg');
-    const svgString = await QRCode.toString(qrText, {
-      type: 'svg',
-      margin: 2,
-      color: {
-        dark: fgColor,
-        light: bgColor,
-      },
-      errorCorrectionLevel: 'M',
+    const svgString = await generateCustomQRSVG(qrText, {
+      fgColor,
+      bgColor,
+      transparentBg: designOptions?.transparentBg || false,
+      eyeColor: designOptions?.eyeColor || fgColor,
+      useCustomEyeColor: designOptions?.useCustomEyeColor || false,
+      moduleStyle: designOptions?.moduleStyle || 'square',
+      eyeStyle: designOptions?.eyeStyle || 'square',
+      errorCorrectionLevel: designOptions?.errorCorrectionLevel || 'M',
+      margin: designOptions?.margin ?? 2,
+      gradientType: designOptions?.gradientType || 'none',
+      gradientColor: designOptions?.gradientColor || '#2563EB',
+      width: 800,
     });
 
     const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
@@ -133,19 +152,25 @@ export const exportPDF = async (
   fgColor: string,
   bgColor: string,
   selectedType?: QRType,
-  rawFilename = 'mon-qr-code'
+  rawFilename = 'mon-qr-code',
+  designOptions?: Partial<QRDesignOptions>
 ): Promise<void> => {
   try {
     const filename = sanitizeFilename(rawFilename, 'pdf');
     const canvas = document.createElement('canvas');
-    await QRCode.toCanvas(canvas, qrText, {
+    await drawCustomQRToCanvas(canvas, qrText, {
+      fgColor,
+      bgColor,
+      transparentBg: designOptions?.transparentBg || false,
+      eyeColor: designOptions?.eyeColor || fgColor,
+      useCustomEyeColor: designOptions?.useCustomEyeColor || false,
+      moduleStyle: designOptions?.moduleStyle || 'square',
+      eyeStyle: designOptions?.eyeStyle || 'square',
+      errorCorrectionLevel: designOptions?.errorCorrectionLevel || 'M',
+      margin: designOptions?.margin ?? 2,
+      gradientType: designOptions?.gradientType || 'none',
+      gradientColor: designOptions?.gradientColor || '#2563EB',
       width: 800,
-      margin: 2,
-      color: {
-        dark: fgColor,
-        light: bgColor,
-      },
-      errorCorrectionLevel: 'M',
     });
 
     const imgData = canvas.toDataURL('image/png');

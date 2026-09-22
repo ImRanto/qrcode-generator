@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Download, Check, Copy, Share2 } from 'lucide-react';
 import type { QRType } from '../utils/qrFormatters';
+import type { QRDesignOptions } from './QRCustomization';
 import { exportPNG, exportSVG, exportPDF, sanitizeFilename, getQRPngFile } from '../utils/qrExporter';
 import { useTranslation } from '../i18n/useTranslation';
 
@@ -10,6 +11,7 @@ interface DownloadMenuProps {
   bgColor: string;
   selectedType?: QRType;
   disabled?: boolean;
+  designOptions?: Partial<QRDesignOptions>;
 }
 
 type ExportFormat = 'png' | 'svg' | 'pdf';
@@ -20,6 +22,7 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
   bgColor,
   selectedType,
   disabled = false,
+  designOptions,
 }) => {
   const { t } = useTranslation();
   const [rawFilename, setRawFilename] = useState('mon-qr-code');
@@ -56,7 +59,7 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
       if (navigator.share) {
         let fileToShare: File | null = null;
         try {
-          fileToShare = await getQRPngFile(qrText, fgColor, bgColor, rawFilename);
+          fileToShare = await getQRPngFile(qrText, fgColor, bgColor, rawFilename, designOptions);
         } catch {
           fileToShare = null;
         }
@@ -92,11 +95,11 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
 
     try {
       if (selectedFormat === 'png') {
-        await exportPNG(qrText, fgColor, bgColor, rawFilename);
+        await exportPNG(qrText, fgColor, bgColor, rawFilename, designOptions);
       } else if (selectedFormat === 'svg') {
-        await exportSVG(qrText, fgColor, bgColor, rawFilename);
+        await exportSVG(qrText, fgColor, bgColor, rawFilename, designOptions);
       } else if (selectedFormat === 'pdf') {
-        await exportPDF(qrText, fgColor, bgColor, selectedType, rawFilename);
+        await exportPDF(qrText, fgColor, bgColor, selectedType, rawFilename, designOptions);
       }
 
       setDownloadSuccess(true);
@@ -109,7 +112,16 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
   };
 
   return (
-    <div className="w-full max-w-sm mt-5 space-y-4">
+    <div className="w-full max-w-sm mt-5 space-y-4 pt-4 border-t border-slate-200/80 dark:border-slate-800/80">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          {t('exportMenuTitle')}
+        </span>
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300">
+          {t('stepExport')}
+        </span>
+      </div>
+
       {/* Quick Actions Bar [ Copy ] [ Share ] [ Download ] */}
       <div className="grid grid-cols-3 gap-2">
         <button
@@ -188,6 +200,7 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
               type="button"
               onClick={() => setSelectedFormat(fmt)}
               aria-label={`Select format ${fmt.toUpperCase()}`}
+              aria-pressed={selectedFormat === fmt}
               className={`py-1.5 text-xs font-semibold uppercase rounded-lg border transition-all cursor-pointer ${
                 selectedFormat === fmt
                   ? 'border-slate-900 dark:border-white bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'

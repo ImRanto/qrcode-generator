@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import QRCode from 'qrcode';
-import { QrCode, Check, Copy, CheckCircle2, AlertTriangle } from 'lucide-react';
-import type { QRSize } from './QRCustomization';
+import { QrCode, Check, Copy, CheckCircle2, AlertTriangle, Sparkles } from 'lucide-react';
+import type { QRSize, QRDesignOptions } from './QRCustomization';
 import type { QRType } from '../utils/qrFormatters';
+import { drawCustomQRToCanvas } from '../utils/qrCustomRenderer';
 import { analyzeQRParameters } from '../utils/contrastValidator';
 import { DownloadMenu } from './DownloadMenu';
 import { useTranslation } from '../i18n/useTranslation';
@@ -13,6 +13,7 @@ interface QRPreviewProps {
   bgColor: string;
   size: QRSize;
   selectedType?: QRType;
+  designOptions?: Partial<QRDesignOptions>;
 }
 
 const SIZE_MAP: Record<QRSize, number> = {
@@ -27,6 +28,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   bgColor,
   size,
   selectedType,
+  designOptions,
 }) => {
   const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -43,28 +45,26 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    QRCode.toCanvas(
-      canvas,
-      qrText,
-      {
-        width: numericSize,
-        margin: 2,
-        color: {
-          dark: fgColor,
-          light: bgColor,
-        },
-        errorCorrectionLevel: 'M',
-      },
-      (err) => {
-        if (err) {
-          console.error('QR code generation error:', err);
-          setGenError('Failed to generate QR code for this input.');
-        } else {
-          setGenError(null);
-        }
-      }
-    );
-  }, [qrText, fgColor, bgColor, numericSize]);
+    drawCustomQRToCanvas(canvas, qrText, {
+      fgColor,
+      bgColor,
+      transparentBg: designOptions?.transparentBg || false,
+      eyeColor: designOptions?.eyeColor || fgColor,
+      useCustomEyeColor: designOptions?.useCustomEyeColor || false,
+      moduleStyle: designOptions?.moduleStyle || 'square',
+      eyeStyle: designOptions?.eyeStyle || 'square',
+      errorCorrectionLevel: designOptions?.errorCorrectionLevel || 'M',
+      margin: designOptions?.margin ?? 2,
+      gradientType: designOptions?.gradientType || 'none',
+      gradientColor: designOptions?.gradientColor || '#2563EB',
+      width: numericSize,
+    })
+      .then(() => setGenError(null))
+      .catch((err) => {
+        console.error('QR code custom render error:', err);
+        setGenError('Failed to generate QR code for this input.');
+      });
+  }, [qrText, fgColor, bgColor, numericSize, designOptions]);
 
   const handleCopyText = async () => {
     if (!qrText) return;
@@ -81,7 +81,20 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   const diagnostics = analyzeQRParameters(fgColor, bgColor, qrText || '');
 
   return (
-    <div className="flex flex-col items-center justify-center h-full p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 shadow-xs transition-all">
+    <div className="flex flex-col items-center justify-center h-full p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 shadow-xs transition-all relative">
+      {/* Real-Time Live Preview Header Badge */}
+      <div className="w-full flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/80 text-xs">
+        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+          <span>{t('livePreviewBadge')}</span>
+        </div>
+        {hasQR && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
+            {t('stepVerification')}
+          </span>
+        )}
+      </div>
+
       {hasQR ? (
         <div className="flex flex-col items-center w-full animate-fadeIn">
           {/* QR Code Container with quiet zone padding */}
@@ -141,6 +154,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             fgColor={fgColor}
             bgColor={bgColor}
             selectedType={selectedType}
+            designOptions={designOptions}
           />
         </div>
       ) : (
