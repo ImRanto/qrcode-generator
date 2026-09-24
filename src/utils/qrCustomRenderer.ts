@@ -12,6 +12,16 @@ export function isEyeModule(row: number, col: number, matrixSize: number): boole
   return false;
 }
 
+function loadLogoImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = (err) => reject(err);
+    img.src = url;
+  });
+}
+
 /**
  * Draws custom styled QR code to an HTML5 Canvas element.
  */
@@ -141,6 +151,52 @@ export async function drawCustomQRToCanvas(
       }
     }
   }
+
+  // 5. Draw Logo if present
+  if (options.logoUrl) {
+    try {
+      const img = await loadLogoImage(options.logoUrl);
+      const logoPercent = Math.min(Math.max(options.logoSize ?? 20, 10), 30);
+      const rawLogoSize = canvasWidth * (logoPercent / 100);
+
+      let logoW = rawLogoSize;
+      let logoH = rawLogoSize;
+      if (img.width && img.height) {
+        if (img.width > img.height) {
+          logoH = rawLogoSize * (img.height / img.width);
+        } else {
+          logoW = rawLogoSize * (img.width / img.height);
+        }
+      }
+
+      const logoX = (canvasWidth - logoW) / 2;
+      const logoY = (canvasWidth - logoH) / 2;
+
+      const padding = options.logoPadding ?? 4;
+      const hasBg = options.logoHasBg !== false;
+
+      if (hasBg) {
+        const bgX = logoX - padding;
+        const bgY = logoY - padding;
+        const bgW = logoW + padding * 2;
+        const bgH = logoH + padding * 2;
+        const cornerRadius = Math.min(6, Math.min(bgW, bgH) * 0.2);
+
+        ctx.fillStyle = options.logoBgColor || '#FFFFFF';
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(bgX, bgY, bgW, bgH, cornerRadius);
+        } else {
+          ctx.rect(bgX, bgY, bgW, bgH);
+        }
+        ctx.fill();
+      }
+
+      ctx.drawImage(img, logoX, logoY, logoW, logoH);
+    } catch (e) {
+      console.warn('Failed to draw logo on canvas:', e);
+    }
+  }
 }
 
 /**
@@ -255,10 +311,32 @@ export async function generateCustomQRSVG(
     }
   }
 
+  let logoSVG = '';
+  if (options.logoUrl) {
+    const logoPercent = Math.min(Math.max(options.logoSize ?? 20, 10), 30);
+    const logoPx = sizePx * (logoPercent / 100);
+    const logoX = (sizePx - logoPx) / 2;
+    const logoY = (sizePx - logoPx) / 2;
+    const padding = options.logoPadding ?? 4;
+    const hasBg = options.logoHasBg !== false;
+
+    if (hasBg) {
+      const bgX = logoX - padding;
+      const bgY = logoY - padding;
+      const bgW = logoPx + padding * 2;
+      const bgH = logoPx + padding * 2;
+      const bgFill = options.logoBgColor || '#FFFFFF';
+      logoSVG += `<rect x="${bgX}" y="${bgY}" width="${bgW}" height="${bgH}" rx="6" fill="${bgFill}" />`;
+    }
+
+    logoSVG += `<image href="${options.logoUrl}" x="${logoX}" y="${logoY}" width="${logoPx}" height="${logoPx}" preserveAspectRatio="xMidYMid meet" />`;
+  }
+
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${sizePx} ${sizePx}" width="${sizePx}" height="${sizePx}">
     ${defs}
     ${bgRect}
     ${paths}
     ${moduleElements}
+    ${logoSVG}
   </svg>`;
 }

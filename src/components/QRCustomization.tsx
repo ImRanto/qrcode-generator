@@ -1,5 +1,5 @@
-import React from 'react';
-import { Palette, RefreshCw, LayoutTemplate, Eye, Shapes, ShieldAlert } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Palette, RefreshCw, LayoutTemplate, Eye, Shapes, ShieldAlert, Image as ImageIcon, Upload, Trash2, AlertTriangle, Check } from 'lucide-react';
 import { useTranslation } from '../i18n/useTranslation';
 import type { TranslationKeys } from '../i18n/translations';
 
@@ -21,6 +21,11 @@ export interface QRDesignOptions {
   margin: number;
   gradientType: GradientType;
   gradientColor: string;
+  logoUrl?: string;
+  logoSize?: number;
+  logoPadding?: number;
+  logoHasBg?: boolean;
+  logoBgColor?: string;
 }
 
 interface QRCustomizationProps {
@@ -489,6 +494,267 @@ export const QRCustomization: React.FC<QRCustomizationProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Logo Section */}
+      <LogoSection designOptions={designOptions} setDesignOptions={setDesignOptions} />
+    </div>
+  );
+};
+
+interface LogoSectionProps {
+  designOptions: QRDesignOptions;
+  setDesignOptions: React.Dispatch<React.SetStateAction<QRDesignOptions>>;
+}
+
+const LogoSection: React.FC<LogoSectionProps> = ({ designOptions, setDesignOptions }) => {
+  const { t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const handleFileChange = (file: File) => {
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      if (dataUrl) {
+        setDesignOptions((prev) => ({
+          ...prev,
+          logoUrl: dataUrl,
+          logoSize: prev.logoSize || 20,
+          logoPadding: prev.logoPadding ?? 4,
+          logoHasBg: prev.logoHasBg ?? true,
+          logoBgColor: prev.logoBgColor || '#FFFFFF',
+          // Automatically switch/recommend EC Level to 'H' when uploading logo
+          errorCorrectionLevel:
+            prev.errorCorrectionLevel === 'L' || prev.errorCorrectionLevel === 'M'
+              ? 'H'
+              : prev.errorCorrectionLevel,
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileChange(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setDesignOptions((prev) => ({ ...prev, logoUrl: undefined }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const currentLogoSize = designOptions.logoSize ?? 20;
+  const currentLogoPadding = designOptions.logoPadding ?? 4;
+  const logoHasBg = designOptions.logoHasBg !== false;
+  const logoBgColor = designOptions.logoBgColor || '#FFFFFF';
+
+  const isEcLow = designOptions.errorCorrectionLevel === 'L' || designOptions.errorCorrectionLevel === 'M';
+  const isLogoLarge = currentLogoSize >= 25;
+
+  return (
+    <div className="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+        <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
+        <span>{t('logoTitle')}</span>
+      </div>
+
+      {!designOptions.logoUrl ? (
+        /* Drag & Drop Upload Zone */
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+          className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
+            isDragging
+              ? 'border-slate-900 bg-slate-100 dark:border-white dark:bg-slate-800'
+              : 'border-slate-200 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-100/60 dark:hover:bg-slate-800/80'
+          }`}
+        >
+          <div className="p-2.5 rounded-full bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300">
+            <Upload className="w-4 h-4" />
+          </div>
+          <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+            {t('logoUploadDrag')}
+          </p>
+          <span className="text-[11px] text-slate-400 dark:text-slate-500">
+            PNG, JPG, SVG, WebP
+          </span>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => e.target.files?.[0] && handleFileChange(e.target.files[0])}
+            className="hidden"
+          />
+        </div>
+      ) : (
+        /* Uploaded Logo Control Panel */
+        <div className="space-y-4 bg-slate-50/80 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
+          {/* Logo Thumbnail Preview & Remove Action */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-12 h-12 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs"
+                style={{ backgroundColor: logoHasBg ? logoBgColor : 'transparent' }}
+              >
+                <img
+                  src={designOptions.logoUrl}
+                  alt="Logo Preview"
+                  className="w-full h-full object-contain p-1"
+                />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                  Logo actif
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {currentLogoSize}% de la taille QR
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleRemoveLogo}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{t('removeLogo')}</span>
+            </button>
+          </div>
+
+          {/* Controls: Size & Padding */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+            {/* Logo Size Slider (Capped max 30% for safety) */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs font-medium text-slate-600 dark:text-slate-400">
+                <label htmlFor="logo-size-slider">{t('logoSizeLabel')}</label>
+                <span className="font-mono font-semibold text-slate-900 dark:text-white">
+                  {currentLogoSize}%
+                </span>
+              </div>
+              <input
+                id="logo-size-slider"
+                type="range"
+                min="10"
+                max="30"
+                step="1"
+                value={currentLogoSize}
+                onChange={(e) =>
+                  setDesignOptions((prev) => ({
+                    ...prev,
+                    logoSize: parseInt(e.target.value, 10),
+                  }))
+                }
+                className="w-full accent-slate-900 dark:accent-white cursor-pointer"
+              />
+            </div>
+
+            {/* Logo Padding Slider */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs font-medium text-slate-600 dark:text-slate-400">
+                <label htmlFor="logo-padding-slider">{t('logoPaddingLabel')}</label>
+                <span className="font-mono font-semibold text-slate-900 dark:text-white">
+                  {currentLogoPadding}px
+                </span>
+              </div>
+              <input
+                id="logo-padding-slider"
+                type="range"
+                min="0"
+                max="16"
+                step="1"
+                value={currentLogoPadding}
+                onChange={(e) =>
+                  setDesignOptions((prev) => ({
+                    ...prev,
+                    logoPadding: parseInt(e.target.value, 10),
+                  }))
+                }
+                className="w-full accent-slate-900 dark:accent-white cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* Logo Background Settings */}
+          <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+            <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={logoHasBg}
+                onChange={(e) =>
+                  setDesignOptions((prev) => ({ ...prev, logoHasBg: e.target.checked }))
+                }
+                className="rounded text-slate-900 dark:text-white"
+              />
+              <span>{t('logoBgLabel')}</span>
+            </label>
+
+            {logoHasBg && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={logoBgColor}
+                  onChange={(e) =>
+                    setDesignOptions((prev) => ({ ...prev, logoBgColor: e.target.value }))
+                  }
+                  aria-label={t('logoBgColorLabel')}
+                  className="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer bg-transparent"
+                />
+                <span className="text-[11px] font-mono text-slate-500 uppercase">
+                  {logoBgColor}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Safety Warnings & EC Recommendation Banners */}
+          {isEcLow && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs">
+              <div className="flex items-start gap-1.5 leading-tight">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <span>{t('logoEcLowWarning')}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setDesignOptions((prev) => ({ ...prev, errorCorrectionLevel: 'H' }))
+                }
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold shrink-0 transition-colors cursor-pointer"
+              >
+                <Check className="w-3 h-3" />
+                <span>{t('logoSwitchToHBtn')}</span>
+              </button>
+            </div>
+          )}
+
+          {isLogoLarge && (
+            <div className="flex items-start gap-1.5 p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500 mt-0.5" />
+              <span>{t('logoSizeWarning')}</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
