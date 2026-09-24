@@ -38,10 +38,32 @@ export function saveToHistory(item: Omit<HistoryItem, 'id' | 'createdAt'> & { id
     // Prepend new item and cap at 20
     const updated = [newItem, ...filtered].slice(0, MAX_HISTORY_ITEMS);
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    return updated;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    } catch (err) {
+      const isQuotaExceeded =
+        err instanceof DOMException &&
+        (err.name === 'QuotaExceededError' || err.code === 22 || err.name === 'NS_ERROR_DOM_QUOTA_REACHED');
+
+      if (isQuotaExceeded) {
+        console.warn('localStorage QuotaExceededError caught. Purging oldest 5 history items and retrying...');
+        // Remove 5 oldest items from updated array and retry once
+        const purged = updated.slice(0, Math.max(1, updated.length - 5));
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(purged));
+          return purged;
+        } catch (retryErr) {
+          console.error('Retry after purging 5 items failed:', retryErr);
+          return current;
+        }
+      } else {
+        console.error('Failed to save item to history:', err);
+        return current;
+      }
+    }
   } catch (err) {
-    console.error('Failed to save item to history:', err);
+    console.error('Failed to prepare item for history:', err);
     return getHistory();
   }
 }
