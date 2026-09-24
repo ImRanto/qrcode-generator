@@ -1,4 +1,3 @@
-import { jsPDF } from 'jspdf';
 import type { QRType } from './qrFormatters';
 import type { QRDesignOptions } from '../components/QRCustomization';
 import { drawCustomQRToCanvas, generateCustomQRSVG } from './qrCustomRenderer';
@@ -168,7 +167,8 @@ export const exportPDF = async (
   bgColor: string,
   selectedType?: QRType,
   rawFilename = 'mon-qr-code',
-  designOptions?: Partial<QRDesignOptions>
+  designOptions?: Partial<QRDesignOptions>,
+  hideRawPayload?: boolean
 ): Promise<void> => {
   try {
     const filename = sanitizeFilename(rawFilename, 'pdf');
@@ -194,6 +194,8 @@ export const exportPDF = async (
     });
 
     const imgData = canvas.toDataURL('image/png');
+
+    const { jsPDF } = await import('jspdf');
 
     // Create A4 PDF (210mm x 297mm)
     const doc = new jsPDF({
@@ -237,10 +239,26 @@ export const exportPDF = async (
     doc.setFontSize(9);
     doc.setTextColor(51, 65, 85); // slate-700
 
-    // Truncate/wrap long content
-    const maxChars = 200;
-    const displayText =
-      qrText.length > maxChars ? `${qrText.substring(0, maxChars)}...` : qrText;
+    let displayText = qrText;
+
+    /**
+     * Privacy measure: Hide raw payload strings for sensitive types such as Wi-Fi and Contact (vCard)
+     * when hideRawPayload is true to avoid exposing cleartext credentials/personal details on printed PDFs.
+     */
+    if (hideRawPayload) {
+      if (selectedType === 'wifi') {
+        displayText = 'Contenu : configuration Wi-Fi (scanner pour se connecter)';
+      } else if (selectedType === 'contact') {
+        displayText = 'Contenu : carte de visite vCard (scanner pour enregistrer le contact)';
+      } else {
+        displayText = 'Contenu : [Information confidentielle masquée]';
+      }
+    } else {
+      const maxChars = 200;
+      if (qrText.length > maxChars) {
+        displayText = `${qrText.substring(0, maxChars)}...`;
+      }
+    }
 
     const splitText = doc.splitTextToSize(displayText, 160);
     doc.text(splitText, pageWidth / 2, yPos + qrSize + 18, { align: 'center' });

@@ -31,6 +31,7 @@ import {
   isValidUrl,
   isValidLatitude,
   isValidLongitude,
+  isValidPhone,
   formatWebsitePayload,
   formatWifiPayload,
   formatEmailPayload,
@@ -150,10 +151,12 @@ export const QRGenerator: React.FC = () => {
       }
       case 'phone': {
         if (!phoneNum.trim()) return { payload: '', formData: phoneNum, err: null };
+        if (!isValidPhone(phoneNum)) return { payload: '', formData: phoneNum, err: 'errInvalidPhone' };
         return { payload: formatPhonePayload(phoneNum), formData: phoneNum, err: null };
       }
       case 'sms': {
         if (!smsData.phone.trim()) return { payload: '', formData: smsData, err: null };
+        if (!isValidPhone(smsData.phone)) return { payload: '', formData: smsData, err: 'errInvalidPhone' };
         return { payload: formatSmsPayload(smsData), formData: smsData, err: null };
       }
       case 'contact': {
@@ -221,9 +224,19 @@ export const QRGenerator: React.FC = () => {
       const filename = getSuggestedFilename(selectedType, formData);
       const title = filename.replace(/-/g, ' ');
 
+      /**
+       * Security choice: For Wi-Fi QR codes, we sanitize formData before saving to localStorage
+       * so that sensitive Wi-Fi passwords are never stored in plaintext on disk.
+       * The generated payload retains the full string so regenerated QR code previews work.
+       */
+      const historyFormData: QRFormData =
+        selectedType === 'wifi' && typeof formData === 'object' && formData !== null
+          ? { ...(formData as WifiData), password: '' }
+          : formData;
+
       const updatedHistory = saveToHistory({
         type: selectedType,
-        formData,
+        formData: historyFormData,
         title,
         payload,
         dataUrl,

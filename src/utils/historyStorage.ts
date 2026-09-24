@@ -24,25 +24,37 @@ export function getHistory(): HistoryItem[] {
  * Deduplicates if exact same ID exists or moves updated item to top.
  */
 export function saveToHistory(item: Omit<HistoryItem, 'id' | 'createdAt'> & { id?: string }): HistoryItem[] {
+  const current = getHistory();
+  const newItem: HistoryItem = {
+    ...item,
+    id: item.id || `qr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    createdAt: Date.now(),
+  };
+
+  // Filter out duplicate ID if present
+  const filtered = current.filter((i) => i.id !== newItem.id);
+
+  // Prepend new item and cap at 20
+  const updated = [newItem, ...filtered].slice(0, MAX_HISTORY_ITEMS);
+
   try {
-    const current = getHistory();
-    const newItem: HistoryItem = {
-      ...item,
-      id: item.id || `qr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      createdAt: Date.now(),
-    };
-
-    // Filter out duplicate ID if present
-    const filtered = current.filter((i) => i.id !== newItem.id);
-
-    // Prepend new item and cap at 20
-    const updated = [newItem, ...filtered].slice(0, MAX_HISTORY_ITEMS);
-
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     return updated;
   } catch (err) {
+    if (err instanceof DOMException && (err.name === 'QuotaExceededError' || err.code === 22)) {
+      console.warn('LocalStorage quota exceeded in saveToHistory. Pruning older history items...');
+      try {
+        // Remove oldest 5 items from filtered list and retry
+        const pruned = [newItem, ...filtered.slice(0, Math.max(0, filtered.length - 5))];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(pruned));
+        return pruned;
+      } catch (retryErr) {
+        console.error('Failed to save to history even after pruning:', retryErr);
+        return current;
+      }
+    }
     console.error('Failed to save item to history:', err);
-    return getHistory();
+    return current;
   }
 }
 

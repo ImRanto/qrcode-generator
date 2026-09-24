@@ -506,13 +506,26 @@ interface LogoSectionProps {
   setDesignOptions: React.Dispatch<React.SetStateAction<QRDesignOptions>>;
 }
 
+const MAX_LOGO_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB limit
+
 const LogoSection: React.FC<LogoSectionProps> = ({ designOptions, setDesignOptions }) => {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFileChange = (file: File) => {
     if (!file || !file.type.startsWith('image/')) return;
+
+    if (file.size > MAX_LOGO_SIZE_BYTES) {
+      setErrorMessage(t('logoFileTooLarge'));
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    setErrorMessage(null);
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -575,6 +588,13 @@ const LogoSection: React.FC<LogoSectionProps> = ({ designOptions, setDesignOptio
         <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
         <span>{t('logoTitle')}</span>
       </div>
+
+      {errorMessage && (
+        <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-medium flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-400" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       {!designOptions.logoUrl ? (
         /* Drag & Drop Upload Zone */
