@@ -99,7 +99,8 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
       } else if (selectedFormat === 'svg') {
         await exportSVG(qrText, fgColor, bgColor, rawFilename, designOptions);
       } else if (selectedFormat === 'pdf') {
-        await exportPDF(qrText, fgColor, bgColor, selectedType, rawFilename, designOptions);
+        const hideRawPayload = selectedType === 'wifi' || selectedType === 'contact';
+        await exportPDF(qrText, fgColor, bgColor, selectedType, rawFilename, designOptions, hideRawPayload);
       }
 
       setDownloadSuccess(true);

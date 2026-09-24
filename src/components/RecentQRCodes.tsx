@@ -57,7 +57,8 @@ export const RecentQRCodes: React.FC<RecentQRCodesProps> = ({
       } else if (format === 'svg') {
         await exportSVG(item.payload, item.foregroundColor, item.backgroundColor, item.filename);
       } else if (format === 'pdf') {
-        await exportPDF(item.payload, item.foregroundColor, item.backgroundColor, item.type, item.filename);
+        const hideRawPayload = item.type === 'wifi' || item.type === 'contact';
+        await exportPDF(item.payload, item.foregroundColor, item.backgroundColor, item.type, item.filename, item.designOptions, hideRawPayload);
       }
     } catch (err) {
       console.error('Quick download failed', err);

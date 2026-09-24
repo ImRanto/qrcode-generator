@@ -72,6 +72,12 @@ export const isValidLongitude = (lng: string): boolean => {
   return !isNaN(num) && num >= -180 && num <= 180;
 };
 
+export const isValidPhone = (phone: string): boolean => {
+  const cleaned = phone.trim();
+  if (!cleaned) return false;
+  return /^[+]?[\d\s\-().]{6,20}$/.test(cleaned);
+};
+
 export const formatWebsitePayload = (url: string): string => {
   const trimmed = url.trim();
   if (/^https?:\/\//i.test(trimmed)) {

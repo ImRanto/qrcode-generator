@@ -70,6 +70,11 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
               placeholder={t('wifiPasswordPlaceholder')}
               className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all outline-none focus:border-slate-400 dark:focus:border-slate-600"
             />
+            {!data.password && (
+              <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">
+                {t('wifiPasswordReenter')}
+              </p>
+            )}
           </div>
         )}
       </div>
