@@ -74,6 +74,7 @@ export const translations = {
     wifiSecNone: 'None (Open)',
     wifiPasswordLabel: 'Password',
     wifiPasswordPlaceholder: 'Wi-Fi Password',
+    wifiPasswordReenter: 'Please re-enter the Wi-Fi password.',
     wifiHiddenLabel: 'Hidden Network',
     yes: 'Yes',
     no: 'No',
@@ -125,6 +126,7 @@ export const translations = {
     errEmptyEmail: 'Please enter an email address.',
     errInvalidEmail: 'Please enter a valid email address.',
     errEmptyPhone: 'Please enter a phone number.',
+    errInvalidPhone: 'Invalid phone number.',
     errEmptyContact: 'Please enter at least a name, phone, or email for the contact.',
     errInvalidContactEmail: 'Please enter a valid email address for the contact.',
     errEmptyLocation: 'Please enter both latitude and longitude.',
@@ -169,6 +171,7 @@ export const translations = {
 
     // Logo & Safety
     logoTitle: 'Logo / Image',
+    logoFileTooLarge: 'The logo file exceeds 2 MB. Please choose a smaller image.',
     logoUploadDrag: 'Drag & drop image here or click to browse',
     logoUploadBtn: 'Upload Logo',
     removeLogo: 'Remove Logo',
@@ -316,6 +319,7 @@ export const translations = {
     wifiSecNone: 'Aucune (Ouvert)',
     wifiPasswordLabel: 'Mot de passe',
     wifiPasswordPlaceholder: 'Mot de passe Wi-Fi',
+    wifiPasswordReenter: 'Veuillez ressaisir le mot de passe Wi-Fi.',
     wifiHiddenLabel: 'Réseau masqué',
     yes: 'Oui',
     no: 'Non',
@@ -367,6 +371,7 @@ export const translations = {
     errEmptyEmail: 'Veuillez saisir une adresse e-mail.',
     errInvalidEmail: 'Veuillez saisir une adresse e-mail valide.',
     errEmptyPhone: 'Veuillez saisir un numéro de téléphone.',
+    errInvalidPhone: 'Numéro de téléphone invalide.',
     errEmptyContact: 'Veuillez renseigner au moins un nom, un numéro ou un e-mail.',
     errInvalidContactEmail: 'Veuillez saisir une adresse e-mail de contact valide.',
     errEmptyLocation: 'Veuillez saisir la latitude et la longitude.',
@@ -411,6 +416,7 @@ export const translations = {
 
     // Logo & Safety
     logoTitle: 'Logo / Image',
+    logoFileTooLarge: 'Le fichier logo dépasse 2 Mo. Merci de choisir une image plus légère.',
     logoUploadDrag: 'Glissez-déposez une image ici ou cliquez pour parcourir',
     logoUploadBtn: 'Ajouter un logo',
     removeLogo: 'Supprimer le logo',

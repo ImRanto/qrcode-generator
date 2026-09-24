@@ -28,6 +28,7 @@ import type {
 
 import {
   isValidEmail,
+  isValidPhone,
   isValidUrl,
   isValidLatitude,
   isValidLongitude,
@@ -150,10 +151,12 @@ export const QRGenerator: React.FC = () => {
       }
       case 'phone': {
         if (!phoneNum.trim()) return { payload: '', formData: phoneNum, err: null };
+        if (!isValidPhone(phoneNum)) return { payload: '', formData: phoneNum, err: 'errInvalidPhone' };
         return { payload: formatPhonePayload(phoneNum), formData: phoneNum, err: null };
       }
       case 'sms': {
         if (!smsData.phone.trim()) return { payload: '', formData: smsData, err: null };
+        if (!isValidPhone(smsData.phone)) return { payload: '', formData: smsData, err: 'errInvalidPhone' };
         return { payload: formatSmsPayload(smsData), formData: smsData, err: null };
       }
       case 'contact': {
@@ -221,9 +224,22 @@ export const QRGenerator: React.FC = () => {
       const filename = getSuggestedFilename(selectedType, formData);
       const title = filename.replace(/-/g, ' ');
 
+      /**
+       * Privacy decision: Do not store sensitive plain-text Wi-Fi passwords in localStorage.
+       * Omitting the password from stored formData prevents sensitive credentials from persisting
+       * in local browser storage. The generated payload remains intact in history for QR regeneration.
+       */
+      let historyFormData = formData;
+      if (selectedType === 'wifi' && typeof formData === 'object' && formData !== null && 'password' in formData) {
+        historyFormData = {
+          ...formData,
+          password: '',
+        };
+      }
+
       const updatedHistory = saveToHistory({
         type: selectedType,
-        formData,
+        formData: historyFormData,
         title,
         payload,
         dataUrl,
@@ -277,9 +293,14 @@ export const QRGenerator: React.FC = () => {
       case 'text':
         setPlainText(typeof item.formData === 'string' ? item.formData : '');
         break;
-      case 'wifi':
-        setWifiData(item.formData as WifiData);
+      case 'wifi': {
+        const wifiItemData = item.formData as WifiData;
+        setWifiData(wifiItemData);
+        if (wifiItemData.security !== 'nopass' && !wifiItemData.password) {
+          setErrorKey('wifiPasswordReenter');
+        }
         break;
+      }
       case 'email':
         setEmailData(item.formData as EmailData);
         break;

@@ -52,6 +52,10 @@ export const isValidEmail = (email: string): boolean => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 };
 
+export const isValidPhone = (phone: string): boolean => {
+  return /^[+]?[\d\s\-().]{6,20}$/.test(phone.trim());
+};
+
 export const isValidUrl = (url: string): boolean => {
   try {
     const formatted = /^https?:\/\//i.test(url) ? url : `https://${url}`;

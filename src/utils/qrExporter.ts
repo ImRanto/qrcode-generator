@@ -1,4 +1,3 @@
-import { jsPDF } from 'jspdf';
 import type { QRType } from './qrFormatters';
 import type { QRDesignOptions } from '../components/QRCustomization';
 import { drawCustomQRToCanvas, generateCustomQRSVG } from './qrCustomRenderer';
@@ -168,9 +167,11 @@ export const exportPDF = async (
   bgColor: string,
   selectedType?: QRType,
   rawFilename = 'mon-qr-code',
-  designOptions?: Partial<QRDesignOptions>
+  designOptions?: Partial<QRDesignOptions>,
+  hideRawPayload?: boolean
 ): Promise<void> => {
   try {
+    const { jsPDF } = await import('jspdf');
     const filename = sanitizeFilename(rawFilename, 'pdf');
     const canvas = document.createElement('canvas');
     await drawCustomQRToCanvas(canvas, qrText, {
@@ -237,10 +238,23 @@ export const exportPDF = async (
     doc.setFontSize(9);
     doc.setTextColor(51, 65, 85); // slate-700
 
-    // Truncate/wrap long content
-    const maxChars = 200;
-    const displayText =
-      qrText.length > maxChars ? `${qrText.substring(0, maxChars)}...` : qrText;
+    // Privacy decision: For sensitive QR types (e.g. Wi-Fi credentials or vCard contacts),
+    // we omit printing raw sensitive details in plaintext under the QR code on PDF exports
+    // to prevent credentials or sensitive details from being exposed to anyone holding the document.
+    let displayText = qrText;
+    if (hideRawPayload) {
+      if (selectedType === 'wifi') {
+        displayText = 'Contenu : configuration Wi-Fi (scanner pour se connecter)';
+      } else if (selectedType === 'contact') {
+        displayText = 'Contenu : carte de visite vCard (scanner pour ajouter le contact)';
+      } else {
+        displayText = 'Contenu masque pour des raisons de confidentialite (scanner pour lire)';
+      }
+    } else {
+      // Truncate/wrap long content
+      const maxChars = 200;
+      displayText = qrText.length > maxChars ? `${qrText.substring(0, maxChars)}...` : qrText;
+    }
 
     const splitText = doc.splitTextToSize(displayText, 160);
     doc.text(splitText, pageWidth / 2, yPos + qrSize + 18, { align: 'center' });
